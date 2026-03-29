@@ -1,274 +1,296 @@
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0 text-white"><i class="fas fa-comments me-2 text-primary"></i> Messagerie Principale</h2>
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createGroupModal">
-            <i class="fas fa-users"></i> Créer Chat Public
-        </button>
-    </div>
+<?php
+    $session = $this->session->userdata('users');
+    $current_user_id = $session->users_id;
 
-    <div class="row">
-        <!-- Sidebar : Liste des discussions Privées ET Publiques -->
-        <div class="col-md-4 mb-4">
-            <div class="card bg-dark border-secondary shadow-sm h-100">
-                <div class="card-header border-secondary bg-transparent p-0">
-                    <ul class="nav nav-tabs nav-fill border-bottom-0" id="chatTabs" role="tablist">
-                        <li class="nav-item border-bottom border-secondary" role="presentation">
-                            <button class="nav-link w-100 py-3 rounded-0 text-white <?php echo ($active_type == 'private' || !$active_type) ? 'active bg-secondary bg-opacity-25' : ''; ?>" id="private-tab" data-bs-toggle="tab" data-bs-target="#private" type="button" role="tab" style="border: none;">
-                                <i class="fas fa-user-friends me-1"></i> Chats Privés
-                            </button>
-                        </li>
-                        <li class="nav-item border-bottom border-secondary" role="presentation">
-                            <button class="nav-link w-100 py-3 rounded-0 text-white <?php echo ($active_type == 'group') ? 'active bg-secondary bg-opacity-25' : ''; ?>" id="group-tab" data-bs-toggle="tab" data-bs-target="#group" type="button" role="tab" style="border: none;">
-                                <i class="fas fa-users me-1"></i> Chats Publics / Groupes
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
-                    <div class="tab-content" id="chatTabsContent">
-                        
-                        <!-- TAB PRIVÉ -->
-                        <div class="tab-pane fade <?php echo ($active_type == 'private' || !$active_type) ? 'show active' : ''; ?>" id="private" role="tabpanel">
-                            <div class="list-group list-group-flush border-bottom-0">
-                                <?php if(isset($users) && !empty($users)): ?>
-                                    <?php foreach($users as $user): ?>
-                                        <a href="<?php echo site_url('chat/index/private/'.$user->users_id); ?>" class="list-group-item list-group-item-action bg-dark text-white border-secondary border-start-0 border-end-0 border-top-0 <?php echo ($active_type == 'private' && $active_id == $user->users_id) ? 'active bg-primary bg-opacity-10' : ''; ?>">
-                                            <div class="d-flex w-100 justify-content-between align-items-center">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="position-relative me-3">
-                                                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
-                                                        <span class="position-absolute bottom-0 end-0 p-1 border border-dark rounded-circle <?php echo ($user->etat_online == 1) ? 'bg-success' : 'bg-secondary'; ?>"></span>
-                                                    </div>
-                                                    <div>
-                                                        <h6 class="mb-0 text-white"><?php echo htmlspecialchars($user->users_nom . ' ' . $user->users_prenom); ?></h6>
-                                                        <small class="<?php echo ($active_type == 'private' && $active_id == $user->users_id) ? 'text-white' : 'text-muted'; ?>">@<?php echo htmlspecialchars($user->users_username); ?></small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="p-3 text-muted text-center small">Aucun contact trouvé</div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
+    $avatar_colors = ['#1a73e8','#188038','#e37400','#c5221f','#9334e6','#e52592','#1967d2','#e8710a'];
+    function chat_avatar_color($id, $colors) {
+        return $colors[$id % count($colors)];
+    }
+    function chat_initials($nom, $prenom) {
+        return strtoupper(mb_substr($nom, 0, 1) . mb_substr($prenom, 0, 1));
+    }
+?>
 
-                        <!-- TAB GROUPES / PUBLIC -->
-                        <div class="tab-pane fade <?php echo ($active_type == 'group') ? 'show active' : ''; ?>" id="group" role="tabpanel">
-                            <div class="list-group list-group-flush border-bottom-0">
-                                <?php if(isset($groups) && !empty($groups)): ?>
-                                    <?php foreach($groups as $grp): ?>
-                                        <a href="<?php echo site_url('chat/index/group/'.$grp->id); ?>" class="list-group-item list-group-item-action bg-dark text-white border-secondary border-start-0 border-end-0 border-top-0 <?php echo ($active_type == 'group' && $active_id == $grp->id) ? 'active bg-primary bg-opacity-10' : ''; ?>">
-                                            <div class="d-flex w-100 align-items-center">
-                                                <div class="bg-primary bg-opacity-25 p-2 rounded-circle me-3 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-users text-primary"></i>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-0 text-white"><?php echo htmlspecialchars($grp->name); ?></h6>
-                                                    <small class="<?php echo ($active_type == 'group' && $active_id == $grp->id) ? 'text-white-50' : 'text-muted'; ?>">Chat Public (Groupe)</small>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="p-4 text-center">
-                                        <i class="fas fa-users-slash fa-2x text-muted mb-2"></i>
-                                        <p class="text-muted small">Vous n'êtes membre d'aucun chat public.</p>
-                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createGroupModal">Créer maintenant</button>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
+<div class="chat-wrapper">
+    <!-- Left Sidebar -->
+    <div class="chat-sidebar" id="chatSidebar">
+        <div class="chat-sidebar-header">
+            <h6 class="fw-semibold mb-3" style="color: var(--text-primary);"><i class="fas fa-comments me-2" style="color: var(--primary);"></i>Messagerie</h6>
+            <div class="position-relative mb-3">
+                <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 small" style="color: var(--text-secondary);"></i>
+                <input type="text" id="chatSearch" class="form-control form-control-sm ps-5" placeholder="Rechercher..." style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 20px;">
             </div>
+            <ul class="nav nav-tabs chat-tabs" id="chatTabs" role="tablist">
+                <li class="nav-item flex-fill" role="presentation">
+                    <button class="nav-link w-100 <?php echo ($active_type == 'private' || !$active_type) ? 'active' : ''; ?>" id="private-tab" data-bs-toggle="tab" data-bs-target="#privatePanel" type="button" role="tab">
+                        <i class="fas fa-user me-1"></i> Privé
+                    </button>
+                </li>
+                <li class="nav-item flex-fill" role="presentation">
+                    <button class="nav-link w-100 <?php echo ($active_type == 'group') ? 'active' : ''; ?>" id="group-tab" data-bs-toggle="tab" data-bs-target="#groupPanel" type="button" role="tab">
+                        <i class="fas fa-users me-1"></i> Groupes
+                    </button>
+                </li>
+            </ul>
         </div>
 
-        <!-- Fenêtre d'Affichage des Messages -->
-        <div class="col-md-8 mb-4">
-            <div class="card bg-dark border-secondary shadow-sm h-100">
-                <?php if($active_partner || $active_group): ?>
-                    
-                    <!-- Header Fenêtre -->
-                    <div class="card-header border-secondary bg-transparent d-flex justify-content-between align-items-center p-3">
-                        <div class="d-flex align-items-center">
-                            <?php if($active_type == 'private'): ?>
-                                <i class="fas fa-user-circle fa-2x me-3 <?php echo ($active_partner->etat_online == 1) ? 'text-success' : 'text-secondary'; ?>"></i>
-                                <div>
-                                    <h5 class="card-title mb-0 text-white"><?php echo htmlspecialchars($active_partner->users_nom . ' ' . $active_partner->users_prenom); ?></h5>
-                                    <?php if($active_partner->etat_online == 1): ?>
-                                        <small class="text-success fw-bold"><i class="fas fa-circle font-10"></i> En ligne</small>
-                                    <?php else: ?>
-                                        <small class="text-muted"><i class="fas fa-circle font-10"></i> Hors ligne</small>
-                                    <?php endif; ?>
+        <div class="chat-sidebar-body tab-content" id="chatTabsContent">
+            <!-- Private contacts -->
+            <div class="tab-pane fade <?php echo ($active_type == 'private' || !$active_type) ? 'show active' : ''; ?>" id="privatePanel" role="tabpanel">
+                <?php if(isset($users) && !empty($users)): ?>
+                    <?php foreach($users as $user): ?>
+                        <?php $is_active = ($active_type == 'private' && $active_id == $user->users_id); ?>
+                        <a href="<?php echo site_url('chat/index/private/'.$user->users_id); ?>" class="chat-contact-item <?php echo $is_active ? 'active' : ''; ?>" data-search="<?php echo htmlspecialchars(strtolower($user->users_nom.' '.$user->users_prenom.' '.$user->users_username)); ?>">
+                            <div class="position-relative flex-shrink-0">
+                                <div class="chat-avatar" style="background: <?php echo chat_avatar_color($user->users_id, $avatar_colors); ?>;">
+                                    <?php echo chat_initials($user->users_nom, $user->users_prenom); ?>
                                 </div>
-                            <?php elseif($active_type == 'group'): ?>
-                                <div class="bg-primary bg-opacity-25 p-2 rounded-circle me-3 d-flex justify-content-center align-items-center" style="width: 45px; height: 45px;">
-                                    <i class="fas fa-users text-primary fa-lg"></i>
-                                </div>
-                                <div>
-                                    <h5 class="card-title mb-0 text-white"><?php echo htmlspecialchars($active_group->name); ?></h5>
-                                    <span class="badge bg-secondary mt-1">Chat Public</span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        <div>
-                            <?php if($active_type == 'group'): ?>
-                                <button class="btn btn-sm btn-outline-success me-1" data-bs-toggle="modal" data-bs-target="#addGroupMembersModal"><i class="fas fa-user-plus"></i> Inviter</button>
-                            <?php endif; ?>
-                            <button class="btn btn-sm btn-outline-info me-1"><i class="fas fa-search"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-ellipsis-v"></i></button>
-                        </div>
-                    </div>
-                    
-                    <!-- Corps des messages -->
-                    <div class="card-body d-flex flex-column" style="height: 450px; overflow-y: auto; background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.02\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-color: #121212;" id="chat-messages">
-                        
-                        <?php if(isset($messages) && !empty($messages)): 
-                            $session = $this->session->userdata('users');
-                            $current_user_id = $session->users_id;
-                        ?>
-                            <?php foreach($messages as $msg): ?>
-                                <?php if($msg->sender_id == $current_user_id): // Message personnel (Expéditeur) ?>
-                                    <div class="d-flex flex-row justify-content-end mb-3 align-items-end">
-                                        <div class="p-3 bg-primary rounded-3 text-white me-2 shadow-sm" style="max-width: 75%; border-bottom-right-radius: 0 !important;">
-                                            <p class="small mb-0"><?php echo nl2br(htmlspecialchars($msg->content)); ?></p>
-                                            <small class="text-white-50 d-block text-end mt-1" style="font-size: 0.65rem;"><?php echo date('H:i', strtotime($msg->created_at)); ?> <i class="fas fa-check-double ms-1"></i></small>
-                                        </div>
-                                    </div>
-                                <?php else: // Message d'un tiers (Destinataire / Groupe) ?>
-                                    <div class="d-flex flex-row justify-content-start mb-3 align-items-end">
-                                        <?php if($active_type == 'group'): ?>
-                                            <div class="me-2 text-center" style="width: 35px;">
-                                                <div class="bg-secondary rounded-circle d-flex mx-auto justify-content-center align-items-center text-white small" style="width: 30px; height: 30px;">
-                                                    <?php echo strtoupper(substr($msg->users_nom, 0, 1) . substr($msg->users_prenom, 0, 1)); ?>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-                                        <div class="p-3 bg-secondary rounded-3 text-white shadow-sm" style="max-width: 75%; border-bottom-left-radius: 0 !important; background-color: #2c2c2c !important;">
-                                            <?php if($active_type == 'group'): ?>
-                                                <div class="text-info fw-bold small mb-1" style="font-size: 0.75rem;"><?php echo htmlspecialchars($msg->users_nom . ' ' . $msg->users_prenom); ?></div>
-                                            <?php endif; ?>
-                                            <p class="small mb-0"><?php echo nl2br(htmlspecialchars($msg->content)); ?></p>
-                                            <small class="text-white-50 d-block mt-1" style="font-size: 0.65rem;"><?php echo date('H:i', strtotime($msg->created_at)); ?></small>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center mt-auto mb-auto">
-                                <div class="bg-dark rounded-circle p-4 mb-3 border border-secondary shadow">
-                                    <i class="fas fa-hand-wave fa-3x text-primary"></i>
-                                </div>
-                                <h6 class="text-white">Démarrez la conversation !</h6>
-                                <p class="text-muted small">Envoyez le premier message à <?php echo ($active_type == 'private') ? 'cette personne' : 'ce groupe'; ?>.</p>
+                                <span class="chat-status-dot <?php echo ($user->etat_online == 1) ? 'online' : ''; ?>"></span>
                             </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <!-- Barre de saisie -->
-                    <div class="card-footer border-secondary bg-transparent p-3">
-                        <?php echo form_open('chat/send_message', array('class' => 'm-0')); ?>
-                            <input type="hidden" name="type" value="<?php echo $active_type; ?>">
-                            <input type="hidden" name="target_id" value="<?php echo $active_id; ?>">
-                            <div class="input-group">
-                                <button class="btn btn-dark border-secondary text-primary px-3" type="button" title="Joindre un fichier"><i class="fas fa-paperclip"></i></button>
-                                <input type="text" name="content" class="form-control bg-dark text-white border-secondary px-3" placeholder="Écrivez votre message ici..." aria-label="Message" required autocomplete="off" autofocus>
-                                <button type="submit" class="btn btn-primary px-4 fw-bold"><i class="fas fa-paper-plane me-1"></i> Envoyer</button>
+                            <div class="min-width-0 flex-grow-1">
+                                <div class="fw-medium small text-truncate" style="color: var(--text-primary);"><?php echo htmlspecialchars($user->users_nom.' '.$user->users_prenom); ?></div>
+                                <div class="text-truncate" style="font-size: 0.75rem; color: var(--text-secondary);">@<?php echo htmlspecialchars($user->users_username); ?></div>
                             </div>
-                        <?php echo form_close(); ?>
-                    </div>
-                <!-- État vide (Aucune conversation sélectionnée) -->
+                        </a>
+                    <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="h-100 d-flex flex-column justify-content-center align-items-center text-muted text-center p-5">
-                        <div class="display-1 text-secondary mb-4 opacity-50"><i class="fab fa-whatsapp"></i></div>
-                        <h4 class="text-white">Messagerie & Chat</h4>
-                        <p class="small text-muted mb-4 max-w-75">Connectez-vous en direct avec vos collaborateurs via notre messagerie privée de bout-en-bout ou créez des groupes publics pour les discussions d'équipes.</p>
-                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createGroupModal"><i class="fas fa-plus me-1"></i> Nouveau Groupe</button>
+                    <div class="text-center py-4 px-3">
+                        <i class="fas fa-user-slash mb-2" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                        <p class="small mb-0" style="color: var(--text-secondary);">Aucun contact disponible</p>
                     </div>
                 <?php endif; ?>
             </div>
+
+            <!-- Groups -->
+            <div class="tab-pane fade <?php echo ($active_type == 'group') ? 'show active' : ''; ?>" id="groupPanel" role="tabpanel">
+                <?php if(isset($groups) && !empty($groups)): ?>
+                    <?php foreach($groups as $grp): ?>
+                        <?php $is_active = ($active_type == 'group' && $active_id == $grp->id); ?>
+                        <a href="<?php echo site_url('chat/index/group/'.$grp->id); ?>" class="chat-contact-item <?php echo $is_active ? 'active' : ''; ?>" data-search="<?php echo htmlspecialchars(strtolower($grp->name)); ?>">
+                            <div class="flex-shrink-0">
+                                <div class="chat-avatar chat-avatar-group">
+                                    <i class="fas fa-users small"></i>
+                                </div>
+                            </div>
+                            <div class="min-width-0 flex-grow-1">
+                                <div class="fw-medium small text-truncate" style="color: var(--text-primary);"><?php echo htmlspecialchars($grp->name); ?></div>
+                                <div class="text-truncate" style="font-size: 0.75rem; color: var(--text-secondary);">Groupe</div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="text-center py-4 px-3">
+                        <i class="fas fa-users-slash mb-2" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                        <p class="small mb-0" style="color: var(--text-secondary);">Aucun groupe disponible</p>
+                    </div>
+                <?php endif; ?>
+                <div class="p-3">
+                    <button class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                        <i class="fas fa-plus me-1"></i> Créer un groupe
+                    </button>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <!-- Mobile sidebar toggle -->
+    <button class="btn btn-primary chat-sidebar-toggle d-md-none" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Center Panel -->
+    <div class="chat-main">
+        <?php if($active_partner || $active_group): ?>
+            <!-- Chat Header -->
+            <div class="chat-main-header">
+                <div class="d-flex align-items-center">
+                    <?php if($active_type == 'private'): ?>
+                        <div class="position-relative me-3 flex-shrink-0">
+                            <div class="chat-avatar" style="background: <?php echo chat_avatar_color($active_partner->users_id, $avatar_colors); ?>;">
+                                <?php echo chat_initials($active_partner->users_nom, $active_partner->users_prenom); ?>
+                            </div>
+                            <span class="chat-status-dot <?php echo ($active_partner->etat_online == 1) ? 'online' : ''; ?>"></span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-semibold" style="color: var(--text-primary);"><?php echo htmlspecialchars($active_partner->users_nom.' '.$active_partner->users_prenom); ?></h6>
+                            <?php if($active_partner->etat_online == 1): ?>
+                                <span class="small" style="color: #188038;"><i class="fas fa-circle" style="font-size: 0.45rem;"></i> En ligne</span>
+                            <?php else: ?>
+                                <span class="small" style="color: var(--text-secondary);"><i class="fas fa-circle" style="font-size: 0.45rem;"></i> Hors ligne</span>
+                            <?php endif; ?>
+                        </div>
+                    <?php elseif($active_type == 'group'): ?>
+                        <div class="flex-shrink-0 me-3">
+                            <div class="chat-avatar chat-avatar-group">
+                                <i class="fas fa-users small"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-semibold" style="color: var(--text-primary);"><?php echo htmlspecialchars($active_group->name); ?></h6>
+                            <span class="small" style="color: var(--text-secondary);">Groupe</span>
+                        </div>
+                        <button class="btn btn-sm px-3" style="background: var(--primary-light); color: var(--primary);" data-bs-toggle="modal" data-bs-target="#addGroupMembersModal">
+                            <i class="fas fa-user-plus me-1"></i> Ajouter
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="chat-messages" id="chat-messages">
+                <?php if(isset($messages) && !empty($messages)): ?>
+                    <?php
+                        $last_date = '';
+                        foreach($messages as $msg):
+                            $msg_date = date('d/m/Y', strtotime($msg->created_at));
+                            if($msg_date !== $last_date):
+                                $last_date = $msg_date;
+                    ?>
+                        <div class="chat-date-separator">
+                            <span><?php echo ($msg_date === date('d/m/Y')) ? "Aujourd'hui" : $msg_date; ?></span>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if($msg->sender_id == $current_user_id): ?>
+                        <div class="chat-bubble-row sent">
+                            <div class="chat-bubble sent">
+                                <p class="mb-0"><?php echo nl2br(htmlspecialchars($msg->content)); ?></p>
+                                <span class="chat-bubble-time"><?php echo date('H:i', strtotime($msg->created_at)); ?></span>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="chat-bubble-row received">
+                            <?php if($active_type == 'group'): ?>
+                                <div class="chat-bubble-avatar" style="background: <?php echo chat_avatar_color($msg->sender_id, $avatar_colors); ?>;">
+                                    <?php echo strtoupper(mb_substr($msg->users_nom, 0, 1) . mb_substr($msg->users_prenom, 0, 1)); ?>
+                                </div>
+                            <?php endif; ?>
+                            <div class="chat-bubble received">
+                                <?php if($active_type == 'group'): ?>
+                                    <div class="chat-bubble-sender" style="color: <?php echo chat_avatar_color($msg->sender_id, $avatar_colors); ?>;"><?php echo htmlspecialchars($msg->users_nom.' '.$msg->users_prenom); ?></div>
+                                <?php endif; ?>
+                                <p class="mb-0"><?php echo nl2br(htmlspecialchars($msg->content)); ?></p>
+                                <span class="chat-bubble-time"><?php echo date('H:i', strtotime($msg->created_at)); ?></span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="chat-empty-messages">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 72px; height: 72px; background: var(--primary-light);">
+                            <i class="fas fa-paper-plane fa-lg" style="color: var(--primary);"></i>
+                        </div>
+                        <h6 class="fw-semibold mb-1" style="color: var(--text-primary);">Commencez à écrire un message</h6>
+                        <p class="small mb-0" style="color: var(--text-secondary);">Envoyez le premier message à <?php echo ($active_type == 'private') ? 'cette personne' : 'ce groupe'; ?></p>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Input Area -->
+            <div class="chat-input-area">
+                <?php echo form_open('chat/send_message', array('class' => 'd-flex align-items-end gap-2 m-0')); ?>
+                    <input type="hidden" name="type" value="<?php echo $active_type; ?>">
+                    <input type="hidden" name="target_id" value="<?php echo $active_id; ?>">
+                    <div class="flex-grow-1">
+                        <textarea name="content" id="chatInput" class="form-control" rows="1" placeholder="Écrivez un message..." required autocomplete="off" style="border: 1px solid var(--border-color); border-radius: 24px; padding: 10px 18px; resize: none; max-height: 120px; background: var(--bg-main);"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                <?php echo form_close(); ?>
+            </div>
+
+        <?php else: ?>
+            <!-- Empty state: no conversation selected -->
+            <div class="chat-empty-state">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4" style="width: 88px; height: 88px; background: var(--primary-light);">
+                    <i class="fas fa-comments fa-2x" style="color: var(--primary);"></i>
+                </div>
+                <h5 class="fw-semibold mb-2" style="color: var(--text-primary);">Sélectionnez une conversation</h5>
+                <p class="small mb-4" style="color: var(--text-secondary); max-width: 360px;">Choisissez un contact ou un groupe dans la liste pour commencer à discuter</p>
+                <button class="btn btn-primary btn-sm px-4" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                    <i class="fas fa-plus me-1"></i> Nouveau Groupe
+                </button>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
-<!-- Modal Création de Groupe Public -->
-<div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createGroupModalLabel" aria-hidden="true" data-bs-theme="dark">
+<!-- Create Group Modal -->
+<div class="modal fade" id="createGroupModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-secondary">
+        <div class="modal-content border-0 shadow" style="border-radius: var(--radius-lg);">
             <?php echo form_open('chat/create_group'); ?>
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title" id="createGroupModalLabel"><i class="fas fa-users text-primary me-2"></i> Créer un Chat Public (Groupe)</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header border-bottom" style="border-color: var(--border-color) !important;">
+                <h6 class="modal-title fw-semibold" style="color: var(--text-primary);"><i class="fas fa-users me-2" style="color: var(--primary);"></i>Créer un groupe</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <div class="mb-4">
-                    <label for="group_name" class="form-label small text-muted text-uppercase fw-bold">Nom du groupe Public</label>
-                    <input type="text" class="form-control bg-transparent text-white border-secondary" id="group_name" name="group_name" placeholder="Ex: Équipe Projet Dev..." required>
+                    <label for="modal_group_name" class="form-label small fw-semibold" style="color: var(--text-primary);">Nom du groupe</label>
+                    <input type="text" class="form-control" id="modal_group_name" name="group_name" placeholder="Ex: Équipe Projet..." required style="border: 1px solid var(--border-color); border-radius: var(--radius);">
                 </div>
-                
-                <div class="mb-2">
-                    <label class="form-label small text-muted text-uppercase fw-bold">Sélectionnez les membres à inviter</label>
-                    <div class="border border-secondary rounded p-2 bg-transparent" style="max-height: 250px; overflow-y: auto;">
+                <div>
+                    <label class="form-label small fw-semibold" style="color: var(--text-primary);">Membres</label>
+                    <div class="border rounded-3 p-2" style="max-height: 240px; overflow-y: auto; border-color: var(--border-color) !important;">
                         <?php if(isset($users) && !empty($users)): ?>
                             <?php foreach($users as $u): ?>
-                                <div class="form-check custom-control custom-checkbox mb-2 p-2 rounded hover-bg-secondary cursor-pointer">
-                                    <input class="form-check-input ms-1" type="checkbox" name="members[]" value="<?php echo $u->users_id; ?>" id="user_<?php echo $u->users_id; ?>">
-                                    <label class="form-check-label w-100 ms-2" style="cursor: pointer;" for="user_<?php echo $u->users_id; ?>">
-                                        <i class="fas fa-user-circle text-secondary me-1"></i> <?php echo htmlspecialchars($u->users_nom . ' ' . $u->users_prenom); ?>
-                                    </label>
-                                </div>
+                                <label class="d-flex align-items-center p-2 rounded-2 cursor-pointer modal-member-item" for="create_user_<?php echo $u->users_id; ?>" style="cursor: pointer;">
+                                    <input class="form-check-input me-3 flex-shrink-0" type="checkbox" name="members[]" value="<?php echo $u->users_id; ?>" id="create_user_<?php echo $u->users_id; ?>">
+                                    <div class="chat-avatar-sm me-2" style="background: <?php echo chat_avatar_color($u->users_id, $avatar_colors); ?>;">
+                                        <?php echo chat_initials($u->users_nom, $u->users_prenom); ?>
+                                    </div>
+                                    <span class="small" style="color: var(--text-primary);"><?php echo htmlspecialchars($u->users_nom.' '.$u->users_prenom); ?></span>
+                                </label>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-muted small mb-0 p-2">Aucun utilisateur disponible pour créer un groupe.</p>
+                            <p class="small text-center mb-0 py-2" style="color: var(--text-secondary);">Aucun utilisateur disponible</p>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-secondary">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i> Confirmer & Créer</button>
+            <div class="modal-footer border-top" style="border-color: var(--border-color) !important;">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-primary btn-sm px-3"><i class="fas fa-check me-1"></i> Créer</button>
             </div>
             <?php echo form_close(); ?>
         </div>
     </div>
 </div>
 
-<!-- Modal Ajout de Membres au Groupe -->
+<!-- Add Members Modal -->
 <?php if($active_type == 'group' && isset($active_group)): ?>
-<div class="modal fade" id="addGroupMembersModal" tabindex="-1" aria-labelledby="addGroupMembersModalLabel" aria-hidden="true" data-bs-theme="dark">
+<div class="modal fade" id="addGroupMembersModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-secondary">
+        <div class="modal-content border-0 shadow" style="border-radius: var(--radius-lg);">
             <?php echo form_open('chat/add_members'); ?>
             <input type="hidden" name="group_id" value="<?php echo $active_group->id; ?>">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title" id="addGroupMembersModalLabel"><i class="fas fa-user-plus text-success me-2"></i> Inviter dans le groupe</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header border-bottom" style="border-color: var(--border-color) !important;">
+                <h6 class="modal-title fw-semibold" style="color: var(--text-primary);"><i class="fas fa-user-plus me-2" style="color: #188038;"></i>Ajouter des membres</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p class="small text-muted mb-3">Sélectionnez de nouveaux collaborateurs à ajouter au groupe "<strong><?php echo htmlspecialchars($active_group->name); ?></strong>".</p>
-                <div class="mb-2">
-                    <div class="border border-secondary rounded p-2 bg-transparent" style="max-height: 250px; overflow-y: auto;">
-                        <?php if(isset($users_not_in_group) && !empty($users_not_in_group)): ?>
-                            <?php foreach($users_not_in_group as $u): ?>
-                                <div class="form-check custom-control custom-checkbox mb-2 p-2 rounded hover-bg-secondary cursor-pointer">
-                                    <input class="form-check-input ms-1" type="checkbox" name="new_members[]" value="<?php echo $u->users_id; ?>" id="new_user_<?php echo $u->users_id; ?>">
-                                    <label class="form-check-label w-100 ms-2" style="cursor: pointer;" for="new_user_<?php echo $u->users_id; ?>">
-                                        <i class="fas fa-user-circle text-secondary me-1"></i> <?php echo htmlspecialchars($u->users_nom . ' ' . $u->users_prenom); ?>
-                                    </label>
+            <div class="modal-body p-4">
+                <p class="small mb-3" style="color: var(--text-secondary);">Invitez des membres dans « <strong><?php echo htmlspecialchars($active_group->name); ?></strong> »</p>
+                <div class="border rounded-3 p-2" style="max-height: 240px; overflow-y: auto; border-color: var(--border-color) !important;">
+                    <?php if(isset($users_not_in_group) && !empty($users_not_in_group)): ?>
+                        <?php foreach($users_not_in_group as $u): ?>
+                            <label class="d-flex align-items-center p-2 rounded-2 cursor-pointer modal-member-item" for="add_user_<?php echo $u->users_id; ?>" style="cursor: pointer;">
+                                <input class="form-check-input me-3 flex-shrink-0" type="checkbox" name="new_members[]" value="<?php echo $u->users_id; ?>" id="add_user_<?php echo $u->users_id; ?>">
+                                <div class="chat-avatar-sm me-2" style="background: <?php echo chat_avatar_color($u->users_id, $avatar_colors); ?>;">
+                                    <?php echo chat_initials($u->users_nom, $u->users_prenom); ?>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="text-muted small mb-0 p-2">Aucun nouvel utilisateur n'est disponible. Tout le monde est déjà dans ce groupe !</p>
-                        <?php endif; ?>
-                    </div>
+                                <span class="small" style="color: var(--text-primary);"><?php echo htmlspecialchars($u->users_nom.' '.$u->users_prenom); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="small text-center mb-0 py-2" style="color: var(--text-secondary);">Tous les utilisateurs sont déjà dans ce groupe</p>
+                    <?php endif; ?>
                 </div>
             </div>
-            <div class="modal-footer border-secondary">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i> Ajouter la sélection</button>
+            <div class="modal-footer border-top" style="border-color: var(--border-color) !important;">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-sm px-3" style="background: #188038; color: #fff;"><i class="fas fa-plus me-1"></i> Ajouter</button>
             </div>
             <?php echo form_close(); ?>
         </div>
@@ -277,31 +299,353 @@
 <?php endif; ?>
 
 <style>
-/* Utilities */
-.cursor-pointer { cursor: pointer; }
-.hover-bg-secondary:hover { background-color: rgba(255,255,255,0.05); }
-.max-w-75 { max-width: 75%; margin: 0 auto; }
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #121212; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #007BFF; }
-/* Nav Tabs customization */
-.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
-    background-color: transparent;
-    color: #fff !important;
-    border-bottom: 2px solid var(--primary-blue) !important;
+/* Chat Layout */
+.chat-wrapper {
+    display: flex;
+    height: calc(100vh - 140px);
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: relative;
 }
-.nav-tabs .nav-link { border-bottom: 2px solid transparent !important; transition: all 0.2s; }
-.nav-tabs .nav-link:hover { border-bottom: 2px solid #555 !important; }
+
+/* Sidebar */
+.chat-sidebar {
+    width: 300px;
+    min-width: 300px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-white);
+}
+.chat-sidebar-header {
+    padding: 20px 16px 0;
+    flex-shrink: 0;
+}
+.chat-sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+}
+.chat-tabs {
+    border-bottom: 1px solid var(--border-color);
+}
+.chat-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 10px 8px;
+    border-radius: 0;
+    transition: all 0.15s ease;
+}
+.chat-tabs .nav-link.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background: transparent;
+}
+.chat-tabs .nav-link:hover:not(.active) {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-color);
+}
+
+/* Contact items */
+.chat-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.12s ease;
+}
+.chat-contact-item:hover {
+    background: var(--bg-main);
+}
+.chat-contact-item.active {
+    background: var(--primary-light);
+    border-left-color: var(--primary);
+}
+
+/* Avatars */
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.chat-avatar-group {
+    background: var(--primary-light) !important;
+    color: var(--primary) !important;
+}
+.chat-avatar-sm {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.chat-status-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #dadce0;
+    border: 2px solid var(--bg-white);
+}
+.chat-status-dot.online {
+    background: #188038;
+}
+
+/* Main area */
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg-main);
+}
+.chat-main-header {
+    padding: 16px 24px;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* Messages */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+.chat-date-separator {
+    text-align: center;
+    margin: 16px 0;
+}
+.chat-date-separator span {
+    background: var(--bg-white);
+    padding: 4px 16px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+}
+.chat-bubble-row {
+    display: flex;
+    margin-bottom: 8px;
+    align-items: flex-end;
+    gap: 8px;
+}
+.chat-bubble-row.sent {
+    justify-content: flex-end;
+}
+.chat-bubble-row.received {
+    justify-content: flex-start;
+}
+.chat-bubble-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.chat-bubble {
+    max-width: 65%;
+    padding: 10px 16px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+.chat-bubble.sent {
+    background: var(--primary);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+}
+.chat-bubble.received {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border-radius: 18px 18px 18px 4px;
+    border: 1px solid var(--border-color);
+}
+.chat-bubble-sender {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+.chat-bubble-time {
+    display: block;
+    font-size: 0.65rem;
+    margin-top: 4px;
+    opacity: 0.7;
+    text-align: right;
+}
+.chat-bubble.sent .chat-bubble-time {
+    color: rgba(255,255,255,0.7);
+}
+.chat-bubble.received .chat-bubble-time {
+    color: var(--text-secondary);
+}
+
+/* Empty states */
+.chat-empty-messages,
+.chat-empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+}
+
+/* Input area */
+.chat-input-area {
+    padding: 16px 24px;
+    background: var(--bg-white);
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* Modal items */
+.modal-member-item:hover {
+    background: var(--bg-main);
+}
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Scrollbar styling */
+.chat-sidebar-body::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar {
+    width: 5px;
+}
+.chat-sidebar-body::-webkit-scrollbar-track,
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+.chat-sidebar-body::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+/* Mobile toggle */
+.chat-sidebar-toggle {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .chat-sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 20;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: var(--shadow-md);
+    }
+    .chat-sidebar.show {
+        transform: translateX(0);
+    }
+    .chat-wrapper {
+        height: calc(100vh - 120px);
+    }
+}
+@media (min-width: 768px) {
+    .chat-sidebar-toggle {
+        display: none !important;
+    }
+}
 </style>
 
 <script>
-// Scroll automatique vers le bas de la fenêtre de chat
 document.addEventListener("DOMContentLoaded", function() {
+    // Auto-scroll messages to bottom
     var chatMessages = document.getElementById("chat-messages");
-    if(chatMessages) {
+    if (chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Auto-resize textarea
+    var chatInput = document.getElementById("chatInput");
+    if (chatInput) {
+        chatInput.addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 120) + "px";
+        });
+        // Submit on Enter (Shift+Enter for new line)
+        chatInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (this.value.trim()) {
+                    this.closest("form").submit();
+                }
+            }
+        });
+    }
+
+    // Sidebar search
+    var searchInput = document.getElementById("chatSearch");
+    if (searchInput) {
+        searchInput.addEventListener("input", function() {
+            var query = this.value.toLowerCase();
+            document.querySelectorAll(".chat-contact-item").forEach(function(item) {
+                var text = item.getAttribute("data-search") || "";
+                item.style.display = text.indexOf(query) !== -1 ? "" : "none";
+            });
+        });
+    }
+
+    // Mobile sidebar toggle
+    var sidebarToggle = document.getElementById("sidebarToggle");
+    var chatSidebar = document.getElementById("chatSidebar");
+    if (sidebarToggle && chatSidebar) {
+        sidebarToggle.addEventListener("click", function() {
+            chatSidebar.classList.toggle("show");
+        });
+        // Close sidebar when clicking a contact on mobile
+        chatSidebar.querySelectorAll(".chat-contact-item").forEach(function(item) {
+            item.addEventListener("click", function() {
+                if (window.innerWidth < 768) {
+                    chatSidebar.classList.remove("show");
+                }
+            });
+        });
     }
 });
 </script>
