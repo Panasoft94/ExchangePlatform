@@ -1,75 +1,289 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Logiciel developpée par ACM sous contrôle de l'ingénieur Anicet DJIMTOLOUMA">
-    <meta name="author" content="ENTREPRISE ACM">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Exchange Pro</title>
 
-    <title>GIRPE</title>
-	
-	<link rel="shortcut icon" type="image/x-icon" href="<?php echo base_url('assets/img/arm.ico');?>" />
-    <link href="<?php echo base_url('assets/css/bootstrap/css/bootstrap.min.css');?>" rel="stylesheet" type = "text/css" >
-	<link href="<?php echo base_url('assets/datatables/datatables.bootstrap.css');?>" rel="stylesheet" />
-	<link href="<?php echo base_url('assets/css/bootstrap-datepicker3.standalone.min.css');?>" rel="stylesheet" type = "text/css">
-    <link href="<?php echo base_url('assets/css/styles.css');?>" rel="stylesheet" type = "text/css">
-  </head>
-  <body>
-	  <div class="container">
-			<br /><br /><br /><br /><br /><br /><br />
-			<?php
-				if($this->session->flashdata('success')){
-					echo "<p class = 'alert alert-success'><i class = 'glyphicon glyphicon-ok-sign'></i> ".$this->session->flashdata('success')."</p>";
-				}
-				if($this->session->flashdata('info')){
-					echo "<p class = 'alert alert-info'><i class = 'glyphicon glyphicon-info-sign'></i> ".$this->session->flashdata('info')."</p>";
-				}
-				if($this->session->flashdata('error')){
-					echo "<p class = 'alert alert-danger'><i class = 'glyphicon glyphicon-remove-sign'></i> ".$this->session->flashdata('error')."</p>";
-				}
-				if($this->session->flashdata('warning')){
-					echo "<p class = 'alert alert-warning'><i class = 'glyphicon glyphicon-ban-circle'></i> ".$this->session->flashdata('warning')."</p>";
-				}
-			?>
-			<div class = "row">
-			
-				
-				
-				<div class = "col-md-offset-2 col-md-8 col-md-offset-4">
-					<div class="well">
-					<div class = "col-md-offset-1 col-md-4 col-md-offset-0">
-					<center><img  width = "80%" height ="80%" src = "<?php echo base_url('assets/img/login.png');?>" class = "img-responsive" /></center>
-				</div>
-					<?php echo form_open('users/login/?'.$_SERVER['QUERY_STRING'], array('class' => ''));?>
-						<?php echo form_fieldset('Authentification GIRPE');?>
-						<div class = "form-group">
-							<?php echo form_input('users_username', set_value('users_username'), array('class' => "form-control tooltip-input", 'placeholder' => 'Nom d\'utilisateur', 'title' => 'Veuillez saisir votre nom d\'utilisateur'));?>
-							<?php echo form_error('users_username');?>
-						</div>
-						<div class = "form-group">
-							<?php echo form_password('users_password', null, array('class' => "form-control tooltip-input",   'placeholder' => 'Mot de passe', 'title' => 'Veuillez saisir votre mot de passe personnel'));?>
-							<?php echo form_error('users_password');?>
-						</div>
-					     <?php echo form_submit('submit', 'Se connecter', array('class' => 'btn-sm btn-success'));?>
-						 <hr>
-						 <p style="font-family:cambria;font-size:15px;color:green;"><em>Copyright &copy; <?php echo date('Y');?>  Tous Droits Reservés ACM. Version 1.6.2, Lab ACM</em></p>
-						</div>
-						
-				</div>
-					
-					<?php echo form_fieldset_close();?>
-					<?php echo form_close();?>
-				
-			
-			</div>
-		</div><!-- ./container-->
-		<script src="<?php echo base_url('assets/js/jquery.js');?>"></script>
-		<script src="<?php echo base_url('assets/css/bootstrap/js/bootstrap.min.js');?>"></script>
-		<script src="<?php echo base_url('assets/datatables/jquery.datatables.fr.js') ?>"></script>
-		<script src="<?php echo base_url('assets/datatables/datatables.bootstrap.js') ?>"></script>
-		<script src="<?php echo base_url('assets/js/bootstrap-datepicker.min.js');?>"></script>
-		<script src="<?php echo base_url('assets/js/bootstrap-datepicker.fr.min.js');?>"></script>
-		<script src="<?php echo base_url('assets/js/script.js');?>"></script>
-	</body>
+  <link rel="shortcut icon" type="image/x-icon" href="<?php echo base_url('assets/img/arm.ico'); ?>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous">
+
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-hover: #1557b0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      padding: 1rem;
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 420px;
+      animation: fadeInUp 0.5s ease-out both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Flash messages */
+    .flash-messages { margin-bottom: 1rem; }
+    .flash-messages .alert {
+      font-size: 0.875rem;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      animation: fadeInUp 0.4s ease-out both;
+    }
+
+    /* Card */
+    .login-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem 2rem 2rem;
+    }
+
+    /* Brand */
+    .brand { text-align: center; margin-bottom: 1.75rem; }
+
+    .brand-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--primary);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .brand-icon i { font-size: 1.5rem; color: #fff; }
+
+    .brand h1 {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: #202124;
+      margin: 0 0 0.25rem;
+    }
+    .brand p {
+      font-size: 0.8125rem;
+      color: #5f6368;
+      margin: 0;
+    }
+
+    /* Section heading */
+    .section-heading {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #202124;
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    /* Input groups */
+    .form-floating-group { position: relative; margin-bottom: 1rem; }
+
+    .form-floating-group .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9aa0a6;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .form-floating-group .form-control {
+      padding-left: 2.5rem;
+      padding-right: 1rem;
+      height: 48px;
+      border: 1.5px solid #dadce0;
+      border-radius: 10px;
+      font-size: 0.9375rem;
+      color: #202124;
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-floating-group .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+      outline: none;
+    }
+    .form-floating-group .form-control:focus ~ .input-icon { color: var(--primary); }
+
+    .form-floating-group .form-control::placeholder {
+      color: #9aa0a6;
+      font-weight: 400;
+    }
+
+    /* Password toggle */
+    .password-wrapper { position: relative; }
+    .password-wrapper .form-control { padding-right: 2.75rem; }
+
+    .btn-toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #9aa0a6;
+      cursor: pointer;
+      padding: 4px 6px;
+      font-size: 0.95rem;
+      z-index: 4;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .btn-toggle-password:hover { color: var(--primary); }
+
+    /* Validation errors */
+    .field-error {
+      color: #d93025;
+      font-size: 0.775rem;
+      margin-top: 0.3rem;
+      padding-left: 2px;
+    }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      height: 48px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      margin-top: 0.5rem;
+    }
+    .btn-login:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 2px 12px rgba(26, 115, 232, 0.3);
+    }
+    .btn-login:active { transform: scale(0.985); }
+
+    /* Footer */
+    .login-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: #9aa0a6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+
+    <!-- Flash messages -->
+    <div class="flash-messages">
+      <?php if ($this->session->flashdata('success')): ?>
+        <div class="alert alert-success"><i class="fa-solid fa-circle-check me-1"></i> <?php echo $this->session->flashdata('success'); ?></div>
+      <?php endif; ?>
+      <?php if ($this->session->flashdata('info')): ?>
+        <div class="alert alert-info"><i class="fa-solid fa-circle-info me-1"></i> <?php echo $this->session->flashdata('info'); ?></div>
+      <?php endif; ?>
+      <?php if ($this->session->flashdata('error')): ?>
+        <div class="alert alert-danger"><i class="fa-solid fa-circle-xmark me-1"></i> <?php echo $this->session->flashdata('error'); ?></div>
+      <?php endif; ?>
+      <?php if ($this->session->flashdata('warning')): ?>
+        <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i> <?php echo $this->session->flashdata('warning'); ?></div>
+      <?php endif; ?>
+    </div>
+
+    <!-- Login card -->
+    <div class="login-card">
+
+      <!-- Brand -->
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+        <h1>Exchange Pro</h1>
+        <p>Plateforme d'Échange Professionnel</p>
+      </div>
+
+      <div class="section-heading">Connexion</div>
+
+      <?php echo form_open('users/login/?' . $_SERVER['QUERY_STRING']); ?>
+
+        <!-- Username -->
+        <div class="form-floating-group">
+          <i class="fa-solid fa-user input-icon"></i>
+          <?php echo form_input('users_username', set_value('users_username'), [
+            'class'       => 'form-control',
+            'placeholder' => "Nom d'utilisateur",
+            'autocomplete'=> 'username',
+          ]); ?>
+          <div class="field-error"><?php echo form_error('users_username'); ?></div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-floating-group password-wrapper">
+          <i class="fa-solid fa-lock input-icon"></i>
+          <?php echo form_password('users_password', '', [
+            'class'       => 'form-control',
+            'id'          => 'passwordField',
+            'placeholder' => 'Mot de passe',
+            'autocomplete'=> 'current-password',
+          ]); ?>
+          <button type="button" class="btn-toggle-password" id="togglePassword" aria-label="Afficher le mot de passe">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+          <div class="field-error"><?php echo form_error('users_password'); ?></div>
+        </div>
+
+        <!-- Submit -->
+        <?php echo form_submit('submit', 'Se connecter', ['class' => 'btn-login']); ?>
+
+      <?php echo form_close(); ?>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      &copy; <?php echo date('Y'); ?> Exchange Pro &mdash; Tous droits réservés
+    </div>
+
+  </div>
+
+  <script src="<?php echo base_url('assets/js/jquery.js'); ?>"></script>
+  <script>
+    var toggleBtn = document.getElementById('togglePassword');
+    var field     = document.getElementById('passwordField');
+    if (toggleBtn && field) {
+      toggleBtn.addEventListener('click', function () {
+        var icon = this.querySelector('i');
+        if (field.type === 'password') {
+          field.type = 'text';
+          icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          field.type = 'password';
+          icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+    }
+  </script>
+</body>
 </html>
