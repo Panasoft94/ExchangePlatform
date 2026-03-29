@@ -1,0 +1,174 @@
+
+
+/* ================================= */
+/* ----------- Loader CSS ---------- */
+/* ================================= */
+.loading-page{
+  position:fixed;
+  z-index:110000;
+  left:0;
+  right:0;
+  overflow:hidden;
+  top:0;
+  bottom:0;
+  background: #0d0d0d;
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          -webkit-justify-content: center;
+          -moz-box-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          -webkit-align-items: center;
+          -moz-box-align: center;
+          align-items: center;
+}
+.loading-page .counter {
+  text-align: center;
+}
+.loading-page .counter p {
+  margin-bottom: 30px;
+}
+.loading-page .counter h2 {
+  color: white;
+  font-size: 60px;
+  margin:0 auto;
+  width:auto !important;
+  text-align:center;
+}
+.loading-page .counter hr {
+  background: #fb2415;
+  border: none;
+  height: 1px;
+}
+.loading-page .counter {
+  position: relative;
+  width: 200px;
+  margin:0 auto;
+}
+.loading-page .counter h2.abs {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.loading-page .counter .color {
+  width: 0px;
+  overflow: hidden;
+  color: #f60d54;
+}
+
+.b-example-divider {
+    width: 100%;
+    height: 3rem;
+    background-color: rgba(0, 0, 0, .1);
+    border: solid rgba(0, 0, 0, .15);
+    border-width: 1px 0;
+    box-shadow: inset 0 0.5em 1.5em rgb(0 0 0 / 10%), inset 0 0.125em 0.5em rgb(0 0 0 / 15%);
+}
+.b-example-divider {
+        width: 100%;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 4px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+.desc{
+    position: absolute;
+    bottom: 0;
+    background-color: #000;
+    color: #fff;
+    opacity: 0.5;
+    left:0;   /** new  **/
+    right:0;  /** new  **/	
+    filter: alpha(opacity=50);
+}
+
+.wrapper{
+    float: left;
+    position: relative;
+    margin: 10px;
+ }
+ 
+.desc_content
+{
+	color: white;
+}
+
+
+.panel
+{
+    position: relative;
+}
+
+body .container .row .formulaire{
+	border:solid #2D3744 1px;
+	padding:20px;
+}
+body .container .row .formulaire1{
+	border:solid #2D3744 1px;
+	padding:18px;
+}
+
+
+fieldset {
+   padding: 0;
+   margin: 0;
+   border: 0;
+   min-width: 0;
+ }
+
+ legend {
+   display: block;
+   width: 100%;
+   padding: 0;
+   margin-bottom: 20px;
+   font-size: 21px;
+   line-height: inherit;
+   color: #333333;
+   border: 0;
+   border-bottom: 1px solid #e5e5e5;
+ }
+.form-control {
+   display: block;
+   width: 100%;
+   height: 34px;
+   padding: 6px 12px;
+   font-size: 14px;
+   line-height: 1.428571429;
+   color: #555555;
+   background-color: #ffffff;
+   background-image: none;
+   border: 1px solid #cccccc;
+   border-radius: 5px;
+   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+   box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.075);
+   -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+   margin-bottom: 4px;
+ }
+ .form-control:focus {
+   border-color: #66afe9;
+   outline: 0;
+   -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+   box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+ }
