@@ -26,16 +26,16 @@
         'use strict';
 
         /* ===== Sidebar Active Link ===== */
-        var currentUrl = window.location.href.replace(/\/+$/, '');
-        var sidebarLinks = document.querySelectorAll('.sidebar-link[data-nav]');
+        let currentUrl = window.location.href.replace(/\/+$/, '');
+        const sidebarLinks = document.querySelectorAll('.sidebar-link[data-nav]');
 
         function setActiveLink() {
-            var bestMatch = null;
-            var bestLength = 0;
+            let bestMatch = null;
+            let bestLength = 0;
 
             sidebarLinks.forEach(function(link) {
                 link.classList.remove('active');
-                var href = link.href.replace(/\/+$/, '');
+                const href = link.href.replace(/\/+$/, '');
                 if (currentUrl === href || currentUrl.indexOf(href) === 0) {
                     if (href.length > bestLength) {
                         bestLength = href.length;
@@ -46,7 +46,7 @@
 
             if (bestMatch) {
                 bestMatch.classList.add('active');
-                var label = bestMatch.querySelector('span');
+                const label = bestMatch.querySelector('span');
                 if (label) {
                     document.getElementById('pageTitle').textContent = label.textContent;
                 }
@@ -55,9 +55,9 @@
         setActiveLink();
 
         /* ===== Sidebar Toggle (Mobile) ===== */
-        var sidebar = document.getElementById('sidebar');
-        var overlay = document.getElementById('sidebarOverlay');
-        var toggleBtn = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggle');
 
         function openSidebar() {
             sidebar.classList.add('open');
@@ -84,7 +84,7 @@
         }
 
         /* ===== Progress Bar ===== */
-        var progressBar = document.getElementById('progressBar');
+        const progressBar = document.getElementById('progressBar');
 
         function showProgress() {
             progressBar.classList.remove('progress-done');
@@ -101,13 +101,13 @@
 
         /* ===== AJAX Page Loading ===== */
         window.loadPage = function(url) {
-            var contentEl = document.getElementById('mainContent');
+            const contentEl = document.getElementById('mainContent');
             showProgress();
 
             // Fade out current content
             contentEl.classList.add('fade-out');
 
-            var xhr = new XMLHttpRequest();
+            const xhr = new XMLHttpRequest();
             xhr.open('GET', url, true);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
@@ -150,7 +150,7 @@
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
-                var searchInput = document.getElementById('globalSearch');
+                const searchInput = document.getElementById('globalSearch');
                 if (searchInput) {
                     searchInput.focus();
                     searchInput.select();
@@ -159,7 +159,7 @@
             // Close sidebar on Escape (mobile)
             if (e.key === 'Escape') {
                 closeSidebar();
-                var searchEl = document.getElementById('globalSearch');
+                const searchEl = document.getElementById('globalSearch');
                 if (searchEl === document.activeElement) {
                     searchEl.blur();
                 }
@@ -168,14 +168,14 @@
 
         /* ===== Flash Alert Auto-Dismiss ===== */
         setTimeout(function() {
-            var alerts = document.querySelectorAll('.flash-alert');
+            const alerts = document.querySelectorAll('.flash-alert');
             alerts.forEach(function(alert) {
                 alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
                 alert.style.opacity = '0';
                 alert.style.transform = 'translateY(-8px)';
                 setTimeout(function() {
                     if (alert.parentNode) {
-                        var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
                         bsAlert.close();
                     }
                 }, 400);

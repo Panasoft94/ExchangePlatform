@@ -690,7 +690,7 @@
                     <div class="alert flash-alert alert-info alert-dismissible fade show" role="alert">
                         <i class="fas fa-info-circle"></i>
                         <?php echo $this->session->flashdata('info'); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss='alert' aria-label="Fermer"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
                     </div>
                 <?php endif; ?>
                 <?php if($this->session->flashdata('error')): ?>
