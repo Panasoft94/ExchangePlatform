@@ -313,6 +313,21 @@ INSERT INTO `users_group` (`users_group_id`, `users_id`, `group_id`) VALUES
 (3, 2, 1),
 (4, 3, 1),
 (5, 4, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `reunions_participants`
+--
+
+CREATE TABLE IF NOT EXISTS `reunions_participants` (
+  `reunion_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `status` enum('invited','accepted','declined') DEFAULT 'invited',
+  PRIMARY KEY (`reunion_id`, `user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+TRUNCATE TABLE `reunions_participants`;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
