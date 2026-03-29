@@ -3,10 +3,10 @@
     $current_user_id = $session->users_id;
 
     $avatar_colors = ['#1a73e8','#188038','#e37400','#c5221f','#9334e6','#e52592','#1967d2','#e8710a'];
-    function chat_avatar_color($id, $colors) {
+    function get_get_chat_avatar_color($id, $colors) {
         return $colors[$id % count($colors)];
     }
-    function chat_initials($nom, $prenom) {
+    function get_get_chat_initials($nom, $prenom) {
         return strtoupper(mb_substr($nom, 0, 1) . mb_substr($prenom, 0, 1));
     }
 ?>
@@ -42,8 +42,8 @@
                         <?php $is_active = ($active_type == 'private' && $active_id == $user->users_id); ?>
                         <a href="<?php echo site_url('chat/index/private/'.$user->users_id); ?>" class="chat-contact-item <?php echo $is_active ? 'active' : ''; ?>" data-search="<?php echo htmlspecialchars(strtolower($user->users_nom.' '.$user->users_prenom.' '.$user->users_username)); ?>">
                             <div class="position-relative flex-shrink-0">
-                                <div class="chat-avatar" style="background: <?php echo chat_avatar_color($user->users_id, $avatar_colors); ?>;">
-                                    <?php echo chat_initials($user->users_nom, $user->users_prenom); ?>
+                                <div class="chat-avatar" style="background: <?php echo get_chat_avatar_color($user->users_id, $avatar_colors); ?>;">
+                                    <?php echo get_chat_initials($user->users_nom, $user->users_prenom); ?>
                                 </div>
                                 <span class="chat-status-dot <?php echo ($user->etat_online == 1) ? 'online' : ''; ?>"></span>
                             </div>
@@ -106,8 +106,8 @@
                 <div class="d-flex align-items-center">
                     <?php if($active_type == 'private'): ?>
                         <div class="position-relative me-3 flex-shrink-0">
-                            <div class="chat-avatar" style="background: <?php echo chat_avatar_color($active_partner->users_id, $avatar_colors); ?>;">
-                                <?php echo chat_initials($active_partner->users_nom, $active_partner->users_prenom); ?>
+                            <div class="chat-avatar" style="background: <?php echo get_chat_avatar_color($active_partner->users_id, $avatar_colors); ?>;">
+                                <?php echo get_chat_initials($active_partner->users_nom, $active_partner->users_prenom); ?>
                             </div>
                             <span class="chat-status-dot <?php echo ($active_partner->etat_online == 1) ? 'online' : ''; ?>"></span>
                         </div>
@@ -161,13 +161,13 @@
                     <?php else: ?>
                         <div class="chat-bubble-row received">
                             <?php if($active_type == 'group'): ?>
-                                <div class="chat-bubble-avatar" style="background: <?php echo chat_avatar_color($msg->sender_id, $avatar_colors); ?>;">
+                                <div class="chat-bubble-avatar" style="background: <?php echo get_chat_avatar_color($msg->sender_id, $avatar_colors); ?>;">
                                     <?php echo strtoupper(mb_substr($msg->users_nom, 0, 1) . mb_substr($msg->users_prenom, 0, 1)); ?>
                                 </div>
                             <?php endif; ?>
                             <div class="chat-bubble received">
                                 <?php if($active_type == 'group'): ?>
-                                    <div class="chat-bubble-sender" style="color: <?php echo chat_avatar_color($msg->sender_id, $avatar_colors); ?>;"><?php echo htmlspecialchars($msg->users_nom.' '.$msg->users_prenom); ?></div>
+                                    <div class="chat-bubble-sender" style="color: <?php echo get_chat_avatar_color($msg->sender_id, $avatar_colors); ?>;"><?php echo htmlspecialchars($msg->users_nom.' '.$msg->users_prenom); ?></div>
                                 <?php endif; ?>
                                 <p class="mb-0"><?php echo nl2br(htmlspecialchars($msg->content)); ?></p>
                                 <span class="chat-bubble-time"><?php echo date('H:i', strtotime($msg->created_at)); ?></span>
@@ -238,8 +238,8 @@
                             <?php foreach($users as $u): ?>
                                 <label class="d-flex align-items-center p-2 rounded-2 cursor-pointer modal-member-item" for="create_user_<?php echo $u->users_id; ?>" style="cursor: pointer;">
                                     <input class="form-check-input me-3 flex-shrink-0" type="checkbox" name="members[]" value="<?php echo $u->users_id; ?>" id="create_user_<?php echo $u->users_id; ?>">
-                                    <div class="chat-avatar-sm me-2" style="background: <?php echo chat_avatar_color($u->users_id, $avatar_colors); ?>;">
-                                        <?php echo chat_initials($u->users_nom, $u->users_prenom); ?>
+                                    <div class="chat-avatar-sm me-2" style="background: <?php echo get_chat_avatar_color($u->users_id, $avatar_colors); ?>;">
+                                        <?php echo get_chat_initials($u->users_nom, $u->users_prenom); ?>
                                     </div>
                                     <span class="small" style="color: var(--text-primary);"><?php echo htmlspecialchars($u->users_nom.' '.$u->users_prenom); ?></span>
                                 </label>
@@ -277,8 +277,8 @@
                         <?php foreach($users_not_in_group as $u): ?>
                             <label class="d-flex align-items-center p-2 rounded-2 cursor-pointer modal-member-item" for="add_user_<?php echo $u->users_id; ?>" style="cursor: pointer;">
                                 <input class="form-check-input me-3 flex-shrink-0" type="checkbox" name="new_members[]" value="<?php echo $u->users_id; ?>" id="add_user_<?php echo $u->users_id; ?>">
-                                <div class="chat-avatar-sm me-2" style="background: <?php echo chat_avatar_color($u->users_id, $avatar_colors); ?>;">
-                                    <?php echo chat_initials($u->users_nom, $u->users_prenom); ?>
+                                <div class="chat-avatar-sm me-2" style="background: <?php echo get_chat_avatar_color($u->users_id, $avatar_colors); ?>;">
+                                    <?php echo get_chat_initials($u->users_nom, $u->users_prenom); ?>
                                 </div>
                                 <span class="small" style="color: var(--text-primary);"><?php echo htmlspecialchars($u->users_nom.' '.$u->users_prenom); ?></span>
                             </label>
