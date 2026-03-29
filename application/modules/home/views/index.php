@@ -223,7 +223,7 @@ $date_str = ucfirst($days[date('w', $now)]) . ' ' . date('j', $now) . ' ' . $mon
 
 <!-- ===== Welcome Section ===== -->
 <div class="dash-welcome">
-    <h2>Bonjour, <?php echo $prenom; ?> 👋</h2>
+    <h2>Bonjour, <?php echo $prenom; ?> <span aria-hidden="true">👋</span></h2>
     <p>Voici un aperçu de votre plateforme</p>
     <div class="dash-date"><i class="fa-regular fa-calendar me-1"></i><?php echo $date_str; ?></div>
 </div>
