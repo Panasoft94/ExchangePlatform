@@ -1,52 +1,84 @@
+<?php $permissions = get_all_permissions(); ?>
+
+<div class="mb-4">
+    <a href="<?php echo site_url('users/group'); ?>" class="text-decoration-none d-inline-flex align-items-center small" style="color: var(--primary);">
+        <i class="fas fa-arrow-left me-2"></i> Retour aux groupes
+    </a>
 </div>
-<div class = "row">
-	<div class = "col-md-offset-4 col-md-8 col-md-offset-2">
-		<?php echo form_open('', array('class' => 'well'));?>
-			<?php echo form_fieldset('MISE A JOUR DES INFORMATIONS D\'UN GROUPE UTILISATEUR');?>
-			<div class="formulaire">
-				<div class="row">
-					<div  class="col-md-3">
-						<?php echo form_label('GROUPE : ', 'group_name');?>
-					</div>
-					<div  class="col-md-9">
-						<input  value = "<?php echo set_value('group_name')?set_value('group_name'):$group->group_name;?>" type="text" name = "group_name" class="form-control tooltip-input" required title = "Entrez le nom du groupe." />
-						<?php echo form_error('group_name');?>
-					</div>
-			    </div>
-			
-			       <div class="row">
-						<div  class="col-md-3">
-							   <?php echo form_label('PERMISSION DU GROUPE : <b class = "text-danger">*</b>', 'group_permissions');?>
-						</div>
-						 <div  class="col-md-9">
-							<ul class="list-group">
-								<?php 
-									$permissions = get_all_permissions();
-								?>
-								<?php foreach($permissions as $key => $value):?>
-								<li class="list-group-item">
-									<?php echo $value;?> :
-									<div class="btn-switch pull-right">
-										<input id = "<?php echo $key;?>" name = "group_permissions[]" type="checkbox" <?php echo $group->{$key} == 1?'checked':'';?> value = "<?php echo $key;?>" class = "tooltip-input" title = 'Activer pour choisir cette permission' />
-										<label for = "<?php echo $key;?>" class="label-success"></label>
-									</div>
-								</li>
-								<?php endforeach;?>
-						    </ul>
-						</div>
-			        </div>
-			   
-			</div>
-			
-			</br>
-			   <div class = "form-group">
-					<center>
-						<?php echo form_submit('submit', 'Valider', array('class' => 'btn btn-primary'));?>
-						<a href="<?php echo site_url('users/group'); ?>" class="btn btn-warning"><i class = "glyphicon glyphicon-circle-arrow-left"></i> Retour sur la liste des groupes</a>
-					</center>
-				</div>
-				
-			<?php echo form_fieldset_close();?>
-		<?php echo form_close();?>
+
+<div class="d-flex align-items-center mb-4">
+    <div class="d-flex align-items-center justify-content-center rounded-circle me-3" style="width: 48px; height: 48px; background: var(--primary-light);">
+        <i class="fas fa-pen-to-square" style="color: var(--primary);"></i>
+    </div>
+    <div>
+        <h4 class="fw-semibold mb-0" style="color: var(--text-primary);">Modifier le groupe</h4>
+        <p class="text-secondary small mb-0">Modifiez le nom et les permissions de « <?php echo htmlspecialchars($group->group_name); ?> »</p>
+    </div>
 </div>
+
+<div class="card border-0 shadow-sm" style="border-radius: var(--radius-lg);">
+    <div class="card-body p-4">
+        <?php echo form_open('', array('class' => 'needs-validation')); ?>
+
+            <div class="mb-4">
+                <label for="group_name" class="form-label small fw-semibold" style="color: var(--text-primary);">Nom du groupe</label>
+                <input type="text" id="group_name" name="group_name" class="form-control py-2 px-3"
+                       value="<?php echo set_value('group_name') ? set_value('group_name') : htmlspecialchars($group->group_name); ?>"
+                       placeholder="Saisissez le nom du groupe"
+                       required
+                       style="border: 1px solid var(--border-color); border-radius: var(--radius);">
+                <?php if(form_error('group_name')): ?>
+                    <div class="text-danger small mt-1"><?php echo form_error('group_name'); ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-semibold mb-3" style="color: var(--text-primary);">
+                    <i class="fas fa-shield-halved me-1" style="color: var(--primary);"></i> Permissions du groupe
+                </label>
+                <div class="row g-3">
+                    <?php foreach($permissions as $key => $value): ?>
+                        <div class="col-md-6">
+                            <label for="perm_<?php echo $key; ?>" class="d-flex align-items-center p-3 rounded-3 border cursor-pointer permission-card" style="border-color: var(--border-color); transition: all 0.15s ease; cursor: pointer;">
+                                <div class="form-check form-switch mb-0 me-3">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           id="perm_<?php echo $key; ?>"
+                                           name="group_permissions[]"
+                                           value="<?php echo $key; ?>"
+                                           <?php echo (isset($group->{$key}) && $group->{$key} == 1) ? 'checked' : ''; ?>
+                                           style="width: 2.5em; height: 1.25em;">
+                                </div>
+                                <span class="small fw-medium" style="color: var(--text-primary);"><?php echo $value; ?></span>
+                            </label>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <hr class="my-4" style="border-color: var(--border-color);">
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="<?php echo site_url('users/group'); ?>" class="btn btn-outline-secondary px-4">
+                    <i class="fas fa-arrow-left me-1"></i> Retour
+                </a>
+                <?php echo form_submit('submit', 'Enregistrer les modifications', array('class' => 'btn btn-primary px-4')); ?>
+            </div>
+
+        <?php echo form_close(); ?>
+    </div>
 </div>
+
+<style>
+.permission-card:hover {
+    background: var(--primary-light) !important;
+    border-color: var(--primary) !important;
+}
+.permission-card:has(input:checked) {
+    background: var(--primary-light);
+    border-color: var(--primary) !important;
+}
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+</style>
