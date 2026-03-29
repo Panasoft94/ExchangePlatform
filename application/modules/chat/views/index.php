@@ -3,10 +3,10 @@
     $current_user_id = $session->users_id;
 
     $avatar_colors = ['#1a73e8','#188038','#e37400','#c5221f','#9334e6','#e52592','#1967d2','#e8710a'];
-    function get_get_chat_avatar_color($id, $colors) {
+    function get_chat_avatar_color($id, $colors) {
         return $colors[$id % count($colors)];
     }
-    function get_get_chat_initials($nom, $prenom) {
+    function get_chat_initials($nom, $prenom) {
         return strtoupper(mb_substr($nom, 0, 1) . mb_substr($prenom, 0, 1));
     }
 ?>
