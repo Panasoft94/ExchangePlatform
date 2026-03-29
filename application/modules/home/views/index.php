@@ -1,64 +1,425 @@
-<div class="row">
-<?php if(is_allowed('user')):?>
-	 <div class="col-md-3">
-		<div class="panel panel-danger">
-			<div class="panel-heading">
-				<div class="row">
-					<div class="col-lg-3">
-						<i class="fa fa-lock fa-5x"></i>
-					</div>
-					<div class="col-lg-9 text-right">
-						<div class="huge"></div>
-						<div>Vous avez au total <b class = "badge"><?php echo $nb_users;?></b> utilisateurs dans votre système</div>
-					</div>
-				</div>
-			</div>
-			<a href="<?php echo site_url('users');?>">
-				<div class="panel-footer">
-					<span class="pull-left">Liste des utilisateurs</span>
-					<span class="pull-right"><i class="glyphicon  glyphicon-ok-sign"></i></span>
-					<div class="clearfix"></div>
-				</div>
-			</a>
-		</div>
-	</div>
-	<?php endif;?>
+<?php
+$session = $this->session->userdata('users');
+$prenom  = isset($session->users_prenom) ? htmlspecialchars($session->users_prenom) : 'Utilisateur';
+
+setlocale(LC_TIME, 'fr_FR.UTF-8', 'fr_FR', 'fra');
+$months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+$days   = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+$now    = time();
+$date_str = ucfirst($days[date('w', $now)]) . ' ' . date('j', $now) . ' ' . $months[date('n', $now) - 1] . ' ' . date('Y', $now);
+?>
+
+<style>
+/* ===== Dashboard Scoped Styles ===== */
+.dash-welcome { margin-bottom: 2rem; }
+.dash-welcome h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+.dash-welcome p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+.dash-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Stat Cards */
+.dash-stat-card {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+}
+.dash-stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    color: inherit;
+    text-decoration: none;
+}
+.dash-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+.dash-stat-icon.blue   { background: #e8f0fe; color: #1a73e8; }
+.dash-stat-icon.green  { background: #e6f4ea; color: #1e8e3e; }
+.dash-stat-icon.orange { background: #fef7e0; color: #e37400; }
+.dash-stat-icon.purple { background: #f3e8fd; color: #8430ce; }
+.dash-stat-info { flex: 1; min-width: 0; }
+.dash-stat-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.dash-stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Quick Actions */
+.dash-action-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--text-primary);
+    display: block;
+    height: 100%;
+}
+.dash-action-card:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+    text-decoration: none;
+}
+.dash-action-card i {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.dash-action-card span {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Dashboard Card */
+.dash-card {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.dash-card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.dash-card-header h5 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.dash-card-body { padding: 0; }
+.dash-card-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+.dash-card-footer a {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+}
+.dash-card-footer a:hover { text-decoration: underline; }
+
+/* Users Table */
+.dash-table {
+    width: 100%;
+    margin: 0;
+    font-size: 0.85rem;
+}
+.dash-table thead th {
+    background: var(--bg-main);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+}
+.dash-table tbody td {
+    padding: 0.75rem 1.25rem;
+    vertical-align: middle;
+    border: none;
+    border-bottom: 1px solid #f1f3f4;
+    color: var(--text-primary);
+}
+.dash-table tbody tr:last-child td { border-bottom: none; }
+.dash-table tbody tr:hover { background: #f8f9fa; }
+
+/* Avatar Initials */
+.dash-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+/* Role Badge */
+.dash-role-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+/* Activity Feed */
+.dash-activity-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid #f1f3f4;
+}
+.dash-activity-item:last-child { border-bottom: none; }
+.dash-activity-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+.dash-activity-content { flex: 1; min-width: 0; }
+.dash-activity-text {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+.dash-activity-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+</style>
+
+<!-- ===== Welcome Section ===== -->
+<div class="dash-welcome">
+    <h2>Bonjour, <?php echo $prenom; ?> 👋</h2>
+    <p>Voici un aperçu de votre plateforme</p>
+    <div class="dash-date"><i class="fa-regular fa-calendar me-1"></i><?php echo $date_str; ?></div>
 </div>
 
+<!-- ===== Statistics Cards ===== -->
+<div class="row g-3 mb-4">
+    <?php if (is_allowed('user')): ?>
+    <div class="col-6 col-lg-3">
+        <a href="<?php echo site_url('users'); ?>" class="dash-stat-card">
+            <div class="dash-stat-icon blue"><i class="fa-solid fa-users"></i></div>
+            <div class="dash-stat-info">
+                <div class="dash-stat-count"><?php echo (int) $nb_users; ?></div>
+                <div class="dash-stat-label">Utilisateurs</div>
+            </div>
+        </a>
+    </div>
+    <?php endif; ?>
 
+    <div class="col-6 col-lg-3">
+        <a href="<?php echo site_url('chat'); ?>" class="dash-stat-card">
+            <div class="dash-stat-icon green"><i class="fa-solid fa-comments"></i></div>
+            <div class="dash-stat-info">
+                <div class="dash-stat-count"><i class="fa-solid fa-arrow-right" style="font-size: 0.9rem;"></i></div>
+                <div class="dash-stat-label">Messages &middot; Chat</div>
+            </div>
+        </a>
+    </div>
 
+    <div class="col-6 col-lg-3">
+        <a href="<?php echo site_url('reunions'); ?>" class="dash-stat-card">
+            <div class="dash-stat-icon orange"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="dash-stat-info">
+                <div class="dash-stat-count"><i class="fa-solid fa-arrow-right" style="font-size: 0.9rem;"></i></div>
+                <div class="dash-stat-label">Réunions &middot; Planifier</div>
+            </div>
+        </a>
+    </div>
 
+    <div class="col-6 col-lg-3">
+        <a href="<?php echo site_url('documents'); ?>" class="dash-stat-card">
+            <div class="dash-stat-icon purple"><i class="fa-solid fa-folder-open"></i></div>
+            <div class="dash-stat-info">
+                <div class="dash-stat-count"><i class="fa-solid fa-arrow-right" style="font-size: 0.9rem;"></i></div>
+                <div class="dash-stat-label">Documents</div>
+            </div>
+        </a>
+    </div>
+</div>
 
+<!-- ===== Quick Actions ===== -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-4">
+        <a href="<?php echo site_url('chat'); ?>" class="dash-action-card">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>Nouveau message</span>
+        </a>
+    </div>
+    <div class="col-sm-4">
+        <a href="<?php echo site_url('reunions'); ?>" class="dash-action-card">
+            <i class="fa-solid fa-video"></i>
+            <span>Planifier réunion</span>
+        </a>
+    </div>
+    <div class="col-sm-4">
+        <a href="<?php echo site_url('documents'); ?>" class="dash-action-card">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Partager document</span>
+        </a>
+    </div>
+</div>
 
-<div class = "row panel">
-	<div class = "col-md-6">
-		<span class = 'page-header'>
-			<h3>Les derniers utilisateurs créés</h3>
-		</span>
-		<?php if(!empty($users)):?>
-			<table class="table table-striped table-condensed table-bordered table-responsive">
-			  <thead>
-				<tr>
-					<td>ID</td>
-					<td>Nom d'utilisateur</td>
-					<td>Nom</td>
-					<td>Prénom</td>
-					<td>E-mail</td>
-				</tr>
-			</thead>
-				<?php foreach($users as $l): ?>
-				<tr>
-					<td><?php echo $l->users_id;?></td>
-					<td><?php echo $l->users_username;?></td>
-					<td><?php echo $l->users_nom;?></td>
-					<td><?php echo $l->users_prenom;?></td>
-					<td><?php echo $l->users_email;?></td>
-				</tr>
-				<?php endforeach; ?>
-			</table>
+<!-- ===== Bottom Row: Users Table + Activity Feed ===== -->
+<div class="row g-3">
+    <?php if (is_allowed('user')): ?>
+    <!-- Recent Users Table -->
+    <div class="col-lg-8">
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <h5><i class="fa-solid fa-user-clock me-2 text-muted"></i>Derniers utilisateurs créés</h5>
+                <span class="badge rounded-pill" style="background: var(--primary-light); color: var(--primary); font-size: 0.7rem;"><?php echo (int) $nb_users; ?> au total</span>
+            </div>
+            <div class="dash-card-body">
+                <?php if (!empty($users)): ?>
+                <div class="table-responsive">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>E-mail</th>
+                                <th>Rôle</th>
+                                <th>Date de création</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $avatar_colors = ['#1a73e8','#1e8e3e','#e37400','#8430ce','#d93025'];
+                            $i = 0;
+                            foreach ($users as $u):
+                                $nom    = htmlspecialchars($u->users_nom);
+                                $prenom_u = htmlspecialchars($u->users_prenom);
+                                $email  = htmlspecialchars($u->users_email);
+                                $role   = htmlspecialchars($u->users_role);
+                                $date   = htmlspecialchars($u->create_at);
+                                $initials = mb_strtoupper(mb_substr($prenom_u, 0, 1) . mb_substr($nom, 0, 1));
+                                $color  = $avatar_colors[$i % count($avatar_colors)];
+                                $i++;
+                            ?>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="dash-avatar" style="background: <?php echo $color; ?>;"><?php echo $initials; ?></div>
+                                        <div>
+                                            <div style="font-weight: 600; line-height: 1.2;"><?php echo $prenom_u . ' ' . $nom; ?></div>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted);">@<?php echo htmlspecialchars($u->users_username); ?></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><?php echo $email; ?></td>
+                                <td>
+                                    <?php
+                                    $role_bg    = '#e8f0fe';
+                                    $role_color = '#1a73e8';
+                                    if (stripos($role, 'admin') !== false) {
+                                        $role_bg = '#fce8e6'; $role_color = '#d93025';
+                                    } elseif (stripos($role, 'moder') !== false || stripos($role, 'manager') !== false) {
+                                        $role_bg = '#fef7e0'; $role_color = '#e37400';
+                                    }
+                                    ?>
+                                    <span class="dash-role-badge" style="background: <?php echo $role_bg; ?>; color: <?php echo $role_color; ?>;">
+                                        <?php echo $role; ?>
+                                    </span>
+                                </td>
+                                <td style="color: var(--text-muted); font-size: 0.8rem;"><?php echo $date; ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php else: ?>
+                <div class="p-4 text-center" style="color: var(--text-muted);">
+                    <i class="fa-solid fa-inbox fa-2x mb-2 d-block" style="opacity: 0.4;"></i>
+                    Aucun utilisateur pour le moment
+                </div>
+                <?php endif; ?>
+            </div>
+            <div class="dash-card-footer">
+                <a href="<?php echo site_url('users'); ?>">Voir tous les comptes <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
-		<?php else:?>
-			<p class = "alert alert-info">Aucune donnée disponible pour le moment</p>
-		<?php endif;?>
-	</div>
+    <!-- Activity Feed -->
+    <div class="<?php echo is_allowed('user') ? 'col-lg-4' : 'col-lg-6 mx-auto'; ?>">
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <h5><i class="fa-solid fa-clock-rotate-left me-2 text-muted"></i>Activité récente</h5>
+            </div>
+            <div class="dash-card-body">
+                <div class="dash-activity-item">
+                    <div class="dash-activity-dot" style="background: #e6f4ea; color: #1e8e3e;">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div class="dash-activity-content">
+                        <div class="dash-activity-text">Un nouveau compte utilisateur a été créé sur la plateforme</div>
+                        <div class="dash-activity-time">Il y a 2 heures</div>
+                    </div>
+                </div>
+                <div class="dash-activity-item">
+                    <div class="dash-activity-dot" style="background: #e8f0fe; color: #1a73e8;">
+                        <i class="fa-solid fa-message"></i>
+                    </div>
+                    <div class="dash-activity-content">
+                        <div class="dash-activity-text">Nouvelle discussion démarrée dans le chat général</div>
+                        <div class="dash-activity-time">Il y a 4 heures</div>
+                    </div>
+                </div>
+                <div class="dash-activity-item">
+                    <div class="dash-activity-dot" style="background: #fef7e0; color: #e37400;">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                    </div>
+                    <div class="dash-activity-content">
+                        <div class="dash-activity-text">Une réunion a été planifiée pour cette semaine</div>
+                        <div class="dash-activity-time">Hier à 16h30</div>
+                    </div>
+                </div>
+                <div class="dash-activity-item">
+                    <div class="dash-activity-dot" style="background: #f3e8fd; color: #8430ce;">
+                        <i class="fa-solid fa-file-arrow-up"></i>
+                    </div>
+                    <div class="dash-activity-content">
+                        <div class="dash-activity-text">Un document a été partagé avec votre groupe</div>
+                        <div class="dash-activity-time">Hier à 10h15</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
