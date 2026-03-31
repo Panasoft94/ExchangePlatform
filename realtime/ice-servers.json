@@ -1,0 +1,17 @@
+{
+  "iceServers": [
+    {
+      "urls": [
+        "stun:{host}:3478"
+      ]
+    },
+    {
+      "urls": [
+        "turn:{host}:3478?transport=udp",
+        "turn:{host}:3478?transport=tcp"
+      ],
+      "username": "reunion",
+      "credential": "reunion123"
+    }
+  ]
+}

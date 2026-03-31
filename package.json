@@ -1,0 +1,14 @@
+{
+  "name": "chat-mfpra-local-visio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Serveur de signalisation local pour les salons de reunion audio WebRTC.",
+  "scripts": {
+    "visio:signal": "node realtime/reunion-signal-server.js",
+    "visio:turn": "node realtime/reunion-turn-server.js"
+  },
+  "dependencies": {
+    "node-turn": "^0.0.6",
+    "ws": "^8.18.3"
+  }
+}

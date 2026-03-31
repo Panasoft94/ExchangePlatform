@@ -48,6 +48,31 @@ CREATE TABLE IF NOT EXISTS `messages` (
   CONSTRAINT `fk_messages_group` FOREIGN KEY (`group_id`) REFERENCES `chat_groups` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Table de suivi de lecture pour les badges de messages non lus
+CREATE TABLE IF NOT EXISTS `chat_read_states` (
+  `user_id` int(11) NOT NULL,
+  `chat_type` varchar(20) NOT NULL,
+  `target_id` int(11) NOT NULL,
+  `last_read_message_id` int(11) NOT NULL DEFAULT 0,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`, `chat_type`, `target_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Pièces jointes du chat
+CREATE TABLE IF NOT EXISTS `chat_message_attachments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `message_id` int(11) NOT NULL,
+  `original_name` varchar(255) NOT NULL,
+  `stored_name` varchar(255) NOT NULL,
+  `filepath` varchar(255) NOT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `file_ext` varchar(20) DEFAULT NULL,
+  `file_size` int(11) NOT NULL DEFAULT 0,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_message_id` (`message_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `reunions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
