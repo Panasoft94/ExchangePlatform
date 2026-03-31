@@ -2,25 +2,24 @@
 <!DOCTYPE html>
 <html lang="fr" data-theme="light">
 <head>
+    <style>#pageLoader{position:fixed;top:0;left:0;width:0;height:3px;background:#1a73e8;z-index:99999;pointer-events:none;}</style>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Exchange Pro — Plateforme d'Échange Professionnel</title>
     <link rel="shortcut icon" type="image/x-icon" href="<?php echo base_url('assets/img/arm.ico'); ?>">
 
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter (local) -->
+    <link href="<?php echo base_url('assets/css/inter.css'); ?>" rel="stylesheet">
 
     <!-- jQuery (must be first for DataTables) -->
     <script src="<?php echo base_url('assets/js/jquery.js'); ?>"></script>
 
-    <!-- Bootstrap 5.3.2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5.3.2 CSS (local) -->
+    <link href="<?php echo base_url('assets/css/bootstrap5/bootstrap.min.css'); ?>" rel="stylesheet">
 
-    <!-- Font Awesome 6.4.2 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Font Awesome 6.4.2 (local) -->
+    <link href="<?php echo base_url('assets/fontawesome6/css/all.min.css'); ?>" rel="stylesheet">
 
     <!-- DataTables CSS -->
     <link href="<?php echo base_url('assets/datatables/datatables.bootstrap.css'); ?>" rel="stylesheet">
@@ -29,6 +28,11 @@
     <script>var BASE_URL = '<?php echo base_url(); ?>', SITE_URL = '<?php echo site_url(); ?>', CHAT_UNREAD_SUMMARY_URL = '<?php echo site_url('chat/unread_summary'); ?>';</script>
 
     <style>
+        /* ===== Page Loader — Top Bar ===== */
+        #pageLoader{position:fixed;top:0;left:0;width:0;height:3px;background:var(--primary,#1a73e8);z-index:99999;transition:width .3s ease;pointer-events:none;}
+        #pageLoader.loading{width:85%;transition:width 8s cubic-bezier(.1,.05,.1,1);}
+        #pageLoader.done{width:100%;transition:width .15s ease;opacity:0;transition:width .15s ease, opacity .3s .15s ease;}
+
         /* ===== CSS Variables — Light Theme ===== */
         :root, [data-theme="light"] {
             --primary: #1a73e8;
@@ -813,6 +817,8 @@
     </style>
 </head>
 <body>
+    <!-- Page Loader -->
+    <div id="pageLoader" class="loading"></div>
 
     <!-- Search Overlay -->
     <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Recherche globale">

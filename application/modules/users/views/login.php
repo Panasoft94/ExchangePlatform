@@ -7,11 +7,9 @@
   <title>Connexion — Exchange Pro</title>
 
   <link rel="shortcut icon" type="image/x-icon" href="<?php echo base_url('assets/img/arm.ico'); ?>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous">
+  <link href="<?php echo base_url('assets/css/inter.css'); ?>" rel="stylesheet">
+  <link href="<?php echo base_url('assets/css/bootstrap5/bootstrap.min.css'); ?>" rel="stylesheet">
+  <link href="<?php echo base_url('assets/fontawesome6/css/all.min.css'); ?>" rel="stylesheet">
 
   <style>
     :root {
@@ -326,9 +324,17 @@
       font-size: 0.7rem;
       color: var(--login-text-muted);
     }
+
+    /* Page Loader */
+    #pageLoader{position:fixed;top:0;left:0;width:0;height:3px;background:var(--primary);z-index:99999;pointer-events:none;}
+    #pageLoader.loading{width:85%;transition:width 8s cubic-bezier(.1,.05,.1,1);}
+    #pageLoader.done{width:100%;transition:width .15s ease;opacity:0;transition:width .15s ease, opacity .3s .15s ease;}
   </style>
 </head>
 <body>
+
+  <!-- Page Loader -->
+  <div id="pageLoader"></div>
 
   <!-- Dark mode toggle -->
   <button type="button" class="btn-theme-login" id="loginThemeToggle" aria-label="Basculer le thème">
@@ -429,6 +435,12 @@
 
   <script src="<?php echo base_url('assets/js/jquery.js'); ?>"></script>
   <script>
+    // Page loader
+    (function(){
+      var l=document.getElementById('pageLoader');
+      window.addEventListener('submit',function(){if(l){l.style.display='';l.style.opacity='1';l.style.width='0';void l.offsetWidth;l.className='loading';}});
+    })();
+
     // Password toggle
     var toggleBtn = document.getElementById('togglePassword');
     var field     = document.getElementById('passwordField');

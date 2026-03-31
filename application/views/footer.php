@@ -8,7 +8,7 @@
     </div> <!-- /.main-content -->
 
     <!-- Bootstrap 5.3.2 JS Bundle (jQuery already loaded in header) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo base_url('assets/js/bootstrap5/bootstrap.bundle.min.js'); ?>"></script>
 
     <!-- DataTables -->
     <script src="<?php echo base_url('assets/datatables/jquery.dataTables.js'); ?>"></script>
@@ -17,6 +17,26 @@
     <script>
     (function() {
         'use strict';
+
+        /* ===== Page Loader ===== */
+        var loader = document.getElementById('pageLoader');
+        if (loader) {
+            loader.classList.remove('loading');
+            loader.classList.add('done');
+            setTimeout(function(){ loader.style.display='none'; }, 500);
+        }
+        document.addEventListener('click', function(e) {
+            var a = e.target.closest('a[href]');
+            if (!a) return;
+            var href = a.getAttribute('href');
+            if (!href || href.charAt(0)==='#' || href.indexOf('javascript:')===0 || a.target==='_blank' || a.hasAttribute('data-no-loader')) return;
+            var l = document.getElementById('pageLoader');
+            if (l) { l.style.display=''; l.style.opacity='1'; l.style.width='0'; void l.offsetWidth; l.className='loading'; }
+        });
+        window.addEventListener('submit', function() {
+            var l = document.getElementById('pageLoader');
+            if (l) { l.style.display=''; l.style.opacity='1'; l.style.width='0'; void l.offsetWidth; l.className='loading'; }
+        });
 
         /* ===== Sidebar Active Link ===== */
         let currentUrl = window.location.href.replace(/\/+$/, '');
