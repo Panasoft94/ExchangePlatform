@@ -33,6 +33,10 @@
         #pageLoader.loading{width:85%;transition:width 8s cubic-bezier(.1,.05,.1,1);}
         #pageLoader.done{width:100%;transition:width .15s ease;opacity:0;transition:width .15s ease, opacity .3s .15s ease;}
 
+        /* ===== Pjax Content Transition ===== */
+        #mainContent{transition:opacity .18s ease,transform .18s ease;}
+        #mainContent.pjax-out{opacity:0;transform:translateY(6px);}
+
         /* ===== CSS Variables — Light Theme ===== */
         :root, [data-theme="light"] {
             --primary: #1a73e8;

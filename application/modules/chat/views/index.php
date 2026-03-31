@@ -132,6 +132,7 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+    overflow: hidden;
     background: var(--bg-main);
 }
 .chat-main-header {
@@ -439,6 +440,12 @@
     background: var(--bg-white);
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+.chat-input-area textarea {
+    min-height: 42px;
+    overflow: hidden;
 }
 .chat-attach-btn {
     width: 42px;
@@ -563,7 +570,11 @@
 </style>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+(function() {
+    /* Cleanup any previous chat instance (pjax re-navigation) */
+    if (window._chatPollTimer) { window.clearInterval(window._chatPollTimer); window._chatPollTimer = null; }
+    if (window._chatMessagesObserver) { window._chatMessagesObserver.disconnect(); window._chatMessagesObserver = null; }
+
     var chatApp = document.getElementById("chatApp");
     if (!chatApp) {
         return;
@@ -724,6 +735,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         messagesObserver.observe(chatMessages, { childList: true, subtree: true });
+        window._chatMessagesObserver = messagesObserver;
     }
 
     function bindTextarea() {
@@ -739,9 +751,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 input.focus();
             }, 0);
         });
+        chatInput.style.overflow = "hidden";
         chatInput.addEventListener("input", function() {
             this.style.height = "auto";
             this.style.height = Math.min(this.scrollHeight, 120) + "px";
+            this.style.overflow = this.scrollHeight > 120 ? "auto" : "hidden";
         });
         chatInput.addEventListener("keydown", function(e) {
             if (e.key === "Enter" && !e.shiftKey) {
@@ -864,31 +878,62 @@ document.addEventListener("DOMContentLoaded", function() {
     function applyState(payload, options) {
         var shouldScroll = options && options.scrollToBottom;
         var shouldFocusInput = options && options.focusInput;
+        var isSilent = options && options.silent;
         var currentSidebarHtml = sidebarContent ? sidebarContent.innerHTML : "";
-        var currentMainHtml = mainContent ? mainContent.innerHTML : "";
         var currentGroupModalHtml = groupModalContainer ? groupModalContainer.innerHTML : "";
         var sidebarChanged = typeof payload.sidebar_html === "string" && payload.sidebar_html !== currentSidebarHtml;
-        var mainChanged = typeof payload.main_html === "string" && payload.main_html !== currentMainHtml;
         var groupModalChanged = typeof payload.group_modal_html === "string" && payload.group_modal_html !== currentGroupModalHtml;
 
         if (sidebarChanged && sidebarContent) {
             sidebarContent.innerHTML = payload.sidebar_html;
         }
-        if (mainChanged && mainContent) {
-            mainContent.innerHTML = payload.main_html;
-        }
         if (groupModalChanged && groupModalContainer) {
             groupModalContainer.innerHTML = payload.group_modal_html;
+        }
+
+        var mainChanged = false;
+        if (typeof payload.main_html === "string" && mainContent) {
+            if (isSilent) {
+                /*
+                 * Poll silencieux : mise à jour ciblée de #chat-messages uniquement.
+                 * On compare innerHTML normalisé par le navigateur (fiable)
+                 * au lieu de comparer HTML brut serveur vs innerHTML navigateur
+                 * (qui diffère à cause de la normalisation → remplacement fantôme).
+                 * Cela préserve le scroll, le draft, les fichiers et évite le flicker.
+                 */
+                var tempDiv = document.createElement("div");
+                tempDiv.innerHTML = payload.main_html;
+                var newMessages = tempDiv.querySelector("#chat-messages");
+                var currentMessages = mainContent.querySelector("#chat-messages");
+                if (newMessages && currentMessages) {
+                    var newMsgHtml = newMessages.innerHTML;
+                    if (newMsgHtml !== currentMessages.innerHTML) {
+                        var wasNearBottom = (currentMessages.scrollHeight - currentMessages.scrollTop - currentMessages.clientHeight) < 100;
+                        currentMessages.innerHTML = newMsgHtml;
+                        mainChanged = true;
+                        if (wasNearBottom) {
+                            scrollMessagesToBottom(true);
+                        }
+                    }
+                }
+                /* Mettre à jour le header (statut en ligne, etc.) sans toucher à l'input */
+                var newHeader = tempDiv.querySelector(".chat-main-header");
+                var currentHeader = mainContent.querySelector(".chat-main-header");
+                if (newHeader && currentHeader && newHeader.innerHTML !== currentHeader.innerHTML) {
+                    currentHeader.innerHTML = newHeader.innerHTML;
+                }
+            } else {
+                /* Navigation explicite (clic conversation, envoi, popstate) : remplacement complet */
+                mainContent.innerHTML = payload.main_html;
+                mainChanged = true;
+                selectedChatFiles = [];
+            }
         }
 
         currentState.type = payload.active_type || currentState.type;
         currentState.id = payload.active_id ? String(payload.active_id) : "";
         chatApp.setAttribute("data-current-type", currentState.type);
         chatApp.setAttribute("data-current-id", currentState.id);
-
-        if (mainChanged) {
-            selectedChatFiles = [];
-        }
 
         if (payload.unread_summary && typeof window.updateChatUnreadCounts === "function") {
             window.updateChatUnreadCounts(payload.unread_summary);
@@ -897,7 +942,9 @@ document.addEventListener("DOMContentLoaded", function() {
         if (sidebarChanged || mainChanged || groupModalChanged) {
             bindDynamicUi();
         }
-        scrollMessagesToBottom(shouldScroll || payload.message_sent === true || mainChanged);
+        if (!isSilent) {
+            scrollMessagesToBottom(shouldScroll || payload.message_sent === true || mainChanged);
+        }
         if (shouldFocusInput || payload.message_sent === true) {
             focusChatInput(true);
         }
@@ -909,7 +956,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         requestInFlight = true;
-        return fetch(getStateUrl(type, id), {
+        var url = getStateUrl(type, id);
+        return fetch(url, {
             headers: {
                 "X-Requested-With": "XMLHttpRequest"
             },
@@ -927,7 +975,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.history.pushState({ type: currentState.type, id: currentState.id }, "", payload.page_url);
             }
         })
-        .catch(function() {
+        .catch(function(err) {
             if (!(options && options.silent)) {
                 window.location.href = chatApp.getAttribute("data-page-base") + "/" + encodeURIComponent(type) + "/" + encodeURIComponent(id);
             }
@@ -1032,14 +1080,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         pollTimer = window.setInterval(function() {
-            var chatInput = document.getElementById("chatInput");
-            var inputIsFocused = !!(chatInput && document.activeElement === chatInput);
-            var hasDraft = (chatInput && chatInput.value && chatInput.value.replace(/^\s+|\s+$/g, "") !== "") || selectedChatFiles.length > 0 || inputIsFocused;
-
-            if (!document.hidden && currentState.id && !hasDraft && !requestInFlight) {
+            if (!document.hidden && currentState.id && !requestInFlight) {
                 fetchState(currentState.type, currentState.id, { skipHistory: true, silent: true });
             }
         }, pollInterval);
+
+        window._chatPollTimer = pollTimer;
     }
 
     window.refreshChatThreadState = function() {
@@ -1062,5 +1108,5 @@ document.addEventListener("DOMContentLoaded", function() {
     scrollMessagesToBottom(true);
     focusChatInput(false);
     startPolling();
-});
+})();
 </script>
