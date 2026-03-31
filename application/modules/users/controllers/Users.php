@@ -37,7 +37,26 @@
 		public function index(){
 			has_access('user');
 
-			$data['liste_users'] = $this->Users_model->get_all();
+			$all_users = $this->Users_model->get_all();
+			$data['liste_users'] = $all_users;
+
+			// Stats for dashboard
+			$total = is_array($all_users) ? count($all_users) : 0;
+			$online = 0;
+			$locked = 0;
+			if($total > 0) {
+				foreach($all_users as $u) {
+					if($u->etat_online == 1) $online++;
+					if($u->etat_compte == 0) $locked++;
+				}
+			}
+			$data['stats'] = array(
+				'total' => $total,
+				'online' => $online,
+				'locked' => $locked,
+				'groups' => count($this->Group_model->get_all())
+			);
+
 			$this->load->view('header');
 			$this->load->view('index', $data);
 			$this->load->view('footer');

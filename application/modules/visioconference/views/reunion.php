@@ -355,6 +355,7 @@
     flex: 1;
     overflow-y: auto;
     display: none;
+    height: 0;
 }
 .sidebar-panel.active { display: flex; flex-direction: column; }
 
@@ -391,45 +392,56 @@
 }
 
 /* ===== Chat Panel ===== */
-.chat-panel { display:flex; flex-direction:column; flex:1; min-height:0; }
+.chat-panel { display:flex; flex-direction:column; flex:1; min-height:0; height:0; }
 .chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 12px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    background: var(--bg-main, #f8f9fa);
 }
 .chat-msg {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: flex-start;
     animation: chat-in .25s ease;
+    background: var(--bg-white, #fff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 10px;
+    padding: 10px 12px;
+    transition: background .15s;
 }
+.chat-msg:hover { background: var(--primary-light, #eef2ff); }
 .chat-msg-avatar {
-    width: 28px; height: 28px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     background: linear-gradient(135deg, var(--primary), #6366f1);
     display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 700; font-size: 10px; text-transform: uppercase;
+    color: #fff; font-weight: 700; font-size: 11px; text-transform: uppercase;
     flex-shrink: 0; overflow: hidden;
+    box-shadow: 0 2px 6px rgba(99,102,241,.25);
 }
 .chat-msg-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 .chat-msg-body { flex:1; min-width:0; }
 .chat-msg-header {
-    display: flex; align-items: baseline; gap: 6px; margin-bottom: 1px;
+    display: flex; align-items: baseline; gap: 6px; margin-bottom: 3px;
 }
 .chat-msg-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
-.chat-msg-time { font-size: 10px; color: var(--text-muted); }
+.chat-msg-time { font-size: 10px; color: var(--text-muted); margin-left: auto; }
 .chat-msg-text {
-    font-size: 13px; color: var(--text-primary); line-height: 1.45;
+    font-size: 13px; color: var(--text-primary); line-height: 1.5;
     word-break: break-word;
 }
 .chat-system {
     text-align: center;
     font-size: 11px;
     color: var(--text-muted);
-    padding: 4px 0;
+    padding: 6px 12px;
     font-style: italic;
+    background: rgba(0,0,0,.03);
+    border-radius: 8px;
+    margin: 2px 0;
 }
 .chat-input-bar {
     display: flex;
@@ -1400,6 +1412,17 @@
     function sendChatMessage() {
         var text = chatInput.value.trim();
         if (!text) return;
+
+        // Display locally immediately (optimistic UI)
+        addChatMessage({
+            clientId: state.localClientId,
+            displayName: meetingConfig.displayName,
+            avatarUrl: meetingConfig.avatarUrl,
+            text: text,
+            timestamp: Date.now()
+        });
+
+        // Send to server for broadcast to others
         sendMessage({ type: 'chat-message', text: text });
         chatInput.value = '';
     }
@@ -1744,7 +1767,12 @@
             if (msg.type === 'offer') { handleOffer(msg); return; }
             if (msg.type === 'answer') { handleAnswer(msg); return; }
             if (msg.type === 'ice-candidate') { handleIceCandidate(msg); return; }
-            if (msg.type === 'chat-message') { addChatMessage(msg.message); return; }
+            if (msg.type === 'chat-message') {
+                // Skip own messages (already displayed locally)
+                if (msg.message && msg.message.clientId === state.localClientId) return;
+                addChatMessage(msg.message);
+                return;
+            }
             if (msg.type === 'system-message') { addSystemMessage(msg.text); return; }
             if (msg.type === 'force-mute') {
                 if (!state.isMuted && state.localStream) {

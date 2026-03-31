@@ -17,25 +17,27 @@
     :root {
       --primary: #1a73e8;
       --primary-hover: #1557b0;
-      --login-bg: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
-      --login-card-bg: #fff;
-      --login-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      --login-bg: #f0f2f5;
+      --login-card-bg: #ffffff;
+      --login-card-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
       --login-text: #202124;
       --login-text-secondary: #5f6368;
       --login-text-muted: #9aa0a6;
       --login-border: #dadce0;
-      --login-input-bg: #fff;
+      --login-input-bg: #ffffff;
+      --login-side-bg: linear-gradient(135deg, #1a73e8 0%, #0d47a1 50%, #1557b0 100%);
     }
 
     [data-theme="dark"] {
-      --login-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      --login-bg: #121212;
       --login-card-bg: #1e1e2d;
-      --login-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+      --login-card-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
       --login-text: #e8eaed;
       --login-text-secondary: #9aa0a6;
       --login-text-muted: #6b7280;
       --login-border: #3a3a4a;
       --login-input-bg: #252536;
+      --login-side-bg: linear-gradient(135deg, #1557b0 0%, #0d2f6b 50%, #1a3a6b 100%);
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -52,9 +54,13 @@
       transition: background 0.3s;
     }
 
-    .login-wrapper {
+    .login-container {
       width: 100%;
-      max-width: 420px;
+      max-width: 900px;
+      display: flex;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--login-card-shadow);
       animation: fadeInUp 0.5s ease-out both;
     }
 
@@ -63,31 +69,119 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* Left side: Illustration panel */
+    .login-side {
+      width: 45%;
+      background: var(--login-side-bg);
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-side::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -30%;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .login-side::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -20%;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .login-side .side-content {
+      position: relative;
+      z-index: 2;
+    }
+    .login-side .side-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .login-side .side-icon i {
+      font-size: 1.75rem;
+      color: #fff;
+    }
+    .login-side h2 {
+      color: #fff;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem;
+      line-height: 1.3;
+    }
+    .login-side p {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0 0 2rem;
+    }
+    .login-side .side-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .login-side .side-features li {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.8125rem;
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .login-side .side-features li i {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.75rem;
+      width: 16px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .login-side { display: none; }
+      .login-container { max-width: 420px; }
+    }
+
+    /* Right side: Form */
+    .login-form-side {
+      flex: 1;
+      background: var(--login-card-bg);
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
     /* Flash messages */
     .flash-messages { margin-bottom: 1rem; }
     .flash-messages .alert {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       border: none;
       border-radius: 10px;
       padding: 0.75rem 1rem;
       animation: fadeInUp 0.4s ease-out both;
     }
 
-    /* Card */
-    .login-card {
-      background: var(--login-card-bg);
-      border-radius: 16px;
-      box-shadow: var(--login-card-shadow);
-      padding: 2.5rem 2rem 2rem;
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-
     /* Brand */
     .brand { text-align: center; margin-bottom: 1.75rem; }
-
     .brand-icon {
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       background: var(--primary);
       border-radius: 14px;
       display: inline-flex;
@@ -95,63 +189,58 @@
       justify-content: center;
       margin-bottom: 0.75rem;
     }
-    .brand-icon i { font-size: 1.5rem; color: #fff; }
-
+    .brand-icon i { font-size: 1.25rem; color: #fff; }
     .brand h1 {
-      font-size: 1.375rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: var(--login-text);
       margin: 0 0 0.25rem;
     }
     .brand p {
-      font-size: 0.8125rem;
+      font-size: 0.8rem;
       color: var(--login-text-secondary);
       margin: 0;
     }
 
     /* Section heading */
     .section-heading {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--login-text);
       margin-bottom: 1.25rem;
       text-align: center;
     }
 
-    /* Input groups */
+    /* Form inputs */
     .form-floating-group { position: relative; margin-bottom: 1rem; }
-
     .form-floating-group .input-icon {
       position: absolute;
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--login-text-muted);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       transition: color 0.2s;
       z-index: 4;
       pointer-events: none;
     }
-
     .form-floating-group .form-control {
       padding-left: 2.5rem;
       padding-right: 1rem;
       height: 48px;
       border: 1.5px solid var(--login-border);
       border-radius: 10px;
-      font-size: 0.9375rem;
+      font-size: 0.9rem;
       color: var(--login-text);
       background: var(--login-input-bg);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-
     .form-floating-group .form-control:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
       outline: none;
     }
     .form-floating-group .form-control:focus ~ .input-icon { color: var(--primary); }
-
     .form-floating-group .form-control::placeholder {
       color: var(--login-text-muted);
       font-weight: 400;
@@ -160,7 +249,6 @@
     /* Password toggle */
     .password-wrapper { position: relative; }
     .password-wrapper .form-control { padding-right: 2.75rem; }
-
     .btn-toggle-password {
       position: absolute;
       right: 10px;
@@ -171,7 +259,7 @@
       color: var(--login-text-muted);
       cursor: pointer;
       padding: 4px 6px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       z-index: 4;
       transition: color 0.2s;
       line-height: 1;
@@ -186,7 +274,7 @@
       padding-left: 2px;
     }
 
-    /* Submit button */
+    /* Submit */
     .btn-login {
       width: 100%;
       height: 48px;
@@ -196,20 +284,19 @@
       border-radius: 10px;
       font-size: 0.9375rem;
       font-weight: 600;
-      letter-spacing: 0.01em;
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
       margin-top: 0.5rem;
     }
     .btn-login:hover {
       background: var(--primary-hover);
-      box-shadow: 0 2px 12px rgba(26, 115, 232, 0.3);
+      box-shadow: 0 4px 16px rgba(26, 115, 232, 0.3);
     }
     .btn-login:active { transform: scale(0.985); }
 
     /* Theme toggle */
     .btn-theme-login {
-      position: absolute;
+      position: fixed;
       top: 1rem;
       right: 1rem;
       width: 40px;
@@ -236,7 +323,7 @@
     .login-footer {
       text-align: center;
       margin-top: 1.5rem;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--login-text-muted);
     }
   </style>
@@ -248,58 +335,79 @@
     <i class="fa-solid fa-moon"></i>
   </button>
 
-  <div class="login-wrapper">
+  <div class="login-container">
 
-    <!-- Flash messages -->
-    <div class="flash-messages">
-      <?php if ($this->session->flashdata('success')): ?>
-        <div class="alert alert-success"><i class="fa-solid fa-circle-check me-1"></i> <?php echo $this->session->flashdata('success'); ?></div>
-      <?php endif; ?>
-      <?php if ($this->session->flashdata('info')): ?>
-        <div class="alert alert-info"><i class="fa-solid fa-circle-info me-1"></i> <?php echo $this->session->flashdata('info'); ?></div>
-      <?php endif; ?>
-      <?php if ($this->session->flashdata('error')): ?>
-        <div class="alert alert-danger"><i class="fa-solid fa-circle-xmark me-1"></i> <?php echo $this->session->flashdata('error'); ?></div>
-      <?php endif; ?>
-      <?php if ($this->session->flashdata('warning')): ?>
-        <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i> <?php echo $this->session->flashdata('warning'); ?></div>
-      <?php endif; ?>
+    <!-- Left: Illustration Panel -->
+    <div class="login-side">
+      <div class="side-content">
+        <div class="side-icon">
+          <i class="fa-solid fa-arrow-right-arrow-left"></i>
+        </div>
+        <h2>Bienvenue sur<br>Exchange Pro</h2>
+        <p>Votre plateforme d'échange professionnel sécurisée pour une collaboration efficace.</p>
+        <ul class="side-features">
+          <li><i class="fas fa-comments"></i> Messagerie instantanée en temps réel</li>
+          <li><i class="fas fa-video"></i> Visioconférence intégrée</li>
+          <li><i class="fas fa-folder-open"></i> Gestion documentaire centralisée</li>
+          <li><i class="fas fa-users"></i> Gestion des groupes et permissions</li>
+          <li><i class="fas fa-shield-halved"></i> Sécurité et traçabilité</li>
+        </ul>
+      </div>
     </div>
 
-    <!-- Login card -->
-    <div class="login-card">
+    <!-- Right: Login Form -->
+    <div class="login-form-side">
 
-      <!-- Brand -->
-      <div class="brand">
+      <!-- Flash messages -->
+      <div class="flash-messages">
+        <?php if ($this->session->flashdata('success')): ?>
+          <div class="alert alert-success"><i class="fa-solid fa-circle-check me-1"></i> <?php echo $this->session->flashdata('success'); ?></div>
+        <?php endif; ?>
+        <?php if ($this->session->flashdata('info')): ?>
+          <div class="alert alert-info"><i class="fa-solid fa-circle-info me-1"></i> <?php echo $this->session->flashdata('info'); ?></div>
+        <?php endif; ?>
+        <?php if ($this->session->flashdata('error')): ?>
+          <div class="alert alert-danger"><i class="fa-solid fa-circle-xmark me-1"></i> <?php echo $this->session->flashdata('error'); ?></div>
+        <?php endif; ?>
+        <?php if ($this->session->flashdata('warning')): ?>
+          <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i> <?php echo $this->session->flashdata('warning'); ?></div>
+        <?php endif; ?>
+      </div>
+
+      <!-- Brand (visible on mobile) -->
+      <div class="brand d-md-none">
         <div class="brand-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
         <h1>Exchange Pro</h1>
         <p>Plateforme d'Échange Professionnel</p>
       </div>
 
-      <div class="section-heading">Connexion</div>
+      <div class="section-heading">
+        <span class="d-none d-md-inline">Connectez-vous à votre compte</span>
+        <span class="d-md-none">Connexion</span>
+      </div>
 
-      <?php echo form_open('users/login/?' . $_SERVER['QUERY_STRING']); ?>
+      <?php echo form_open('users/login/?' . htmlspecialchars($_SERVER['QUERY_STRING'])); ?>
 
         <!-- Username -->
         <div class="form-floating-group">
           <i class="fa-solid fa-user input-icon"></i>
-          <?php echo form_input('users_username', set_value('users_username'), [
+          <?php echo form_input('users_username', set_value('users_username'), array(
             'class'       => 'form-control',
-            'placeholder' => "Nom d'utilisateur",
+            'placeholder' => "Nom d'utilisateur ou e-mail",
             'autocomplete'=> 'username',
-          ]); ?>
+          )); ?>
           <div class="field-error"><?php echo form_error('users_username'); ?></div>
         </div>
 
         <!-- Password -->
         <div class="form-floating-group password-wrapper">
           <i class="fa-solid fa-lock input-icon"></i>
-          <?php echo form_password('users_password', '', [
+          <?php echo form_password('users_password', '', array(
             'class'       => 'form-control',
             'id'          => 'passwordField',
             'placeholder' => 'Mot de passe',
             'autocomplete'=> 'current-password',
-          ]); ?>
+          )); ?>
           <button type="button" class="btn-toggle-password" id="togglePassword" aria-label="Afficher le mot de passe">
             <i class="fa-solid fa-eye"></i>
           </button>
@@ -307,16 +415,16 @@
         </div>
 
         <!-- Submit -->
-        <?php echo form_submit('submit', 'Se connecter', ['class' => 'btn-login']); ?>
+        <?php echo form_submit('submit', 'Se connecter', array('class' => 'btn-login')); ?>
 
       <?php echo form_close(); ?>
-    </div>
 
-    <!-- Footer -->
-    <div class="login-footer">
-      &copy; <?php echo date('Y'); ?> Exchange Pro &mdash; Tous droits réservés
-    </div>
+      <!-- Footer -->
+      <div class="login-footer">
+        &copy; <?php echo date('Y'); ?> Exchange Pro &mdash; Tous droits réservés
+      </div>
 
+    </div>
   </div>
 
   <script src="<?php echo base_url('assets/js/jquery.js'); ?>"></script>
@@ -337,7 +445,7 @@
       });
     }
 
-    // Dark mode toggle (synced with main app)
+    // Dark mode toggle
     (function() {
       var html = document.documentElement;
       var btn = document.getElementById('loginThemeToggle');
