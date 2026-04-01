@@ -51,7 +51,8 @@ function view_format_duration($min) {
 /* ── Detail Page Styles ────────────────────────── */
 .reunion-detail-card { background: var(--bg-white); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; }
 .reunion-detail-header { background: linear-gradient(135deg, var(--primary) 0%, #4285f4 100%); color: #fff; padding: 2rem; position: relative; }
-.reunion-detail-header::before { content: ''; position: absolute; top: -40%; right: -10%; width: 250px; height: 250px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+.reunion-detail-header::before { content: ''; position: absolute; top: -40%; right: -10%; width: 250px; height: 250px; background: rgba(255,255,255,0.06); border-radius: 50%; pointer-events: none; z-index: 0; }
+.reunion-detail-header > * { position: relative; z-index: 1; }
 
 .participant-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: var(--radius); transition: var(--transition); }
 .participant-row:hover { background: var(--bg-main); }

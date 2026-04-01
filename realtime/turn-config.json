@@ -1,12 +1,12 @@
 {
-  "listeningPort": 3478,
-  "listeningIps": [
-    "0.0.0.0"
-  ],
-  "authMech": "long-term",
-  "credentials": {
-    "reunion": "reunion123"
-  },
-  "realm": "chat-mfpra.local",
-  "debugLevel": "INFO"
+    "listeningPort": 3478,
+    "listeningIps": [
+        "0.0.0.0"
+    ],
+    "authMech": "long-term",
+    "credentials": {
+        "reunion": "reunion123"
+    },
+    "realm": "chat-mfpra.local",
+    "debugLevel": "INFO"
 }

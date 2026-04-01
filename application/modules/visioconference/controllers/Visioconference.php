@@ -120,7 +120,8 @@ class Visioconference extends MX_Controller
 
     public function reunion($id)
     {
-        has_access('join_reunion');
+        check(); // Vérifie uniquement que l'utilisateur est connecté
+
         $reunion = $this->Reunions_model->get($id);
         if (!$reunion) {
             $this->session->set_flashdata('error', 'Cette réunion n\'existe pas.');
@@ -133,8 +134,9 @@ class Visioconference extends MX_Controller
             redirect('reunions/view/' . (int) $id);
         }
 
-        if (!$this->can_access_room($reunion, $session->users_id)) {
-            $this->session->set_flashdata('error', 'Vous devez être participant à cette réunion pour accéder au salon de visioconférence.');
+        // Autorise si : permission ACL join_reunion OU participant/créateur de la réunion
+        if (!is_allowed('join_reunion') && !$this->can_access_room($reunion, $session->users_id)) {
+            $this->session->set_flashdata('error', 'Vous n\'avez pas l\'autorisation de rejoindre cette réunion.');
             redirect('reunions/view/' . (int) $id);
         }
 

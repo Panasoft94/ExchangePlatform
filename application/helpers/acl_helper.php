@@ -87,7 +87,9 @@
 							$merged[$key] = true;
 						}
 					}
-					if(isset($row->super_admin) && $row->super_admin == 1){
+					// result_array() retourne des tableaux, pas des objets
+					$sa = is_array($row) ? (isset($row['super_admin']) ? $row['super_admin'] : 0) : (isset($row->super_admin) ? $row->super_admin : 0);
+					if($sa == 1){
 						$is_super = true;
 					}
 				}

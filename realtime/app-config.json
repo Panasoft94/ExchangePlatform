@@ -1,8 +1,8 @@
 {
-  "signalPort": 8081,
-  "rtcHost": "localhost",
-  "turnEnabled": true,
-  "turnPort": 3478,
-  "turnUsername": "reunion",
-  "turnPassword": "reunion123"
+    "signalPort": 8081,
+    "rtcHost": "localhost",
+    "turnEnabled": true,
+    "turnPort": 3478,
+    "turnUsername": "reunion",
+    "turnPassword": "reunion123"
 }
