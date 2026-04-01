@@ -90,6 +90,43 @@
     flex-shrink: 0;
     margin-top: 6px;
 }
+/* Checkbox — visible in both light & dark themes */
+.history-timeline-item .form-check-input {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--text-muted);
+    border-radius: 4px;
+    background-color: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    display: grid;
+    place-content: center;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+.history-timeline-item .form-check-input::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    transform: scale(0);
+    transition: transform 0.12s ease-in-out;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    background-color: #fff;
+}
+.history-timeline-item .form-check-input:hover {
+    border-color: var(--primary);
+}
+.history-timeline-item .form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.history-timeline-item .form-check-input:checked::before {
+    transform: scale(1);
+}
+.history-timeline-item .form-check-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.2);
+}
 </style>
 
 <!-- Page Header -->
