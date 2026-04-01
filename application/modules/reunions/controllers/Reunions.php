@@ -15,6 +15,7 @@ class Reunions extends MX_Controller
 
     public function index()
     {
+        has_access('view_reunions');
         $filter = $this->input->get('filter');
         $search = trim($this->input->get('q'));
 
@@ -79,6 +80,7 @@ class Reunions extends MX_Controller
 
     public function create()
     {
+        has_access('create_reunion');
         if ($this->input->method() !== 'post') {
             redirect('reunions');
         }
@@ -133,6 +135,7 @@ class Reunions extends MX_Controller
             $this->session->set_flashdata('error', 'Cette réunion n\'existe pas.');
             redirect('reunions');
         }
+        require_access_or_owner('manage_reunions', $reunion->created_by, 'Seul le créateur ou un administrateur peut modifier cette réunion.');
 
         if ($this->input->method() === 'post') {
             $title        = trim($this->input->post('title'));
@@ -196,6 +199,7 @@ class Reunions extends MX_Controller
             $this->session->set_flashdata('error', 'Cette réunion n\'existe pas.');
             redirect('reunions');
         }
+        require_access_or_owner('manage_reunions', $reunion->created_by, 'Seul le créateur ou un administrateur peut changer le statut.');
 
         $status = trim($this->input->post('status'));
         if ($this->Reunions_model->update_status($id, $status)) {
@@ -316,6 +320,7 @@ class Reunions extends MX_Controller
             $this->session->set_flashdata('error', 'Réunion introuvable.');
             redirect('reunions');
         }
+        require_access_or_owner('manage_reunions', $reunion->created_by, 'Seul le créateur ou un administrateur peut modifier l\'ordre du jour.');
 
         $title = trim($this->input->post('agenda_title'));
         $description = trim($this->input->post('agenda_description'));
@@ -347,6 +352,9 @@ class Reunions extends MX_Controller
             redirect('reunions/view/' . (int) $id);
         }
 
+        $reunion = $this->Reunions_model->get($id);
+        require_access_or_owner('manage_reunions', $reunion ? $reunion->created_by : 0);
+
         $this->Reunions_model->delete_agenda_item($agenda_id);
         $this->session->set_flashdata('success', 'Point supprimé de l\'ordre du jour.');
         redirect('reunions/view/' . (int) $id . '#agenda');
@@ -359,6 +367,9 @@ class Reunions extends MX_Controller
             $this->session->set_flashdata('error', 'Point introuvable.');
             redirect('reunions/view/' . (int) $id);
         }
+
+        $reunion = $this->Reunions_model->get($id);
+        require_access_or_owner('manage_reunions', $reunion ? $reunion->created_by : 0);
 
         $this->Reunions_model->toggle_agenda_item($agenda_id);
         redirect('reunions/view/' . (int) $id . '#agenda');
@@ -424,6 +435,8 @@ class Reunions extends MX_Controller
             $this->session->set_flashdata('error', 'Cette réunion n\'existe pas.');
             redirect('reunions');
         }
+
+        require_access_or_owner('manage_reunions', $reunion->created_by);
 
         $this->Reunions_model->delete($id);
 
@@ -526,12 +539,7 @@ class Reunions extends MX_Controller
             return false;
         }
 
-        $role = isset($session->users_role) ? strtolower($session->users_role) : '';
-        if ($role !== '' && strpos($role, 'admin') !== false) {
-            return true;
-        }
-
-        if (function_exists('is_allowed') && (is_allowed('group') || is_allowed('user'))) {
+        if (function_exists('is_allowed') && is_allowed('manage_visio_config')) {
             return true;
         }
 

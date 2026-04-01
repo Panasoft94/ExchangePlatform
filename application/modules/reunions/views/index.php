@@ -143,9 +143,11 @@ $current_search = isset($search) ? $search : '';
             <button class="view-toggle-btn" data-view="grid" title="Vue grille"><i class="fas fa-th-large"></i></button>
             <button class="view-toggle-btn" data-view="list" title="Vue liste"><i class="fas fa-list"></i></button>
         </div>
+        <?php if(is_allowed('create_reunion')): ?>
         <button class="btn btn-primary btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createReunionModal">
             <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">Nouvelle réunion</span>
         </button>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -307,9 +309,11 @@ $current_search = isset($search) ? $search : '';
     <i class="fas fa-calendar-xmark d-block"></i>
     <h5>Aucune réunion trouvée</h5>
     <p><?php echo !empty($current_search) ? 'Aucun résultat pour votre recherche.' : 'Commencez par créer votre première réunion.'; ?></p>
+    <?php if(is_allowed('create_reunion')): ?>
     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createReunionModal">
         <i class="fas fa-plus me-1"></i> Créer une réunion
     </button>
+    <?php endif; ?>
 </div>
 <?php endif; ?>
 

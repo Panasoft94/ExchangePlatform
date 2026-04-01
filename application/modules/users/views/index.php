@@ -397,6 +397,7 @@
 
                 <!-- Actions -->
                 <div class="d-flex align-items-center gap-1 pt-2" style="border-top: 1px solid var(--border-color);">
+                    <?php if(is_allowed('lock_user')): ?>
                     <?php if($is_locked): ?>
                         <a href="<?php echo site_url('users/deverrouiller_compte_user/' . (int)$l->users_id); ?>"
                            class="action-btn btn-lock" title="Déverrouiller"
@@ -409,6 +410,7 @@
                            onclick="return confirm('Verrouiller ce compte ?')">
                             <i class="fas fa-lock"></i>
                         </a>
+                    <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if(is_allowed('update_user')): ?>
@@ -512,6 +514,7 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="d-inline-flex gap-1">
+                                    <?php if(is_allowed('lock_user')): ?>
                                     <?php if($l->etat_compte == 1): ?>
                                         <a href="<?php echo site_url('users/verrouiller_compte_user/' . (int)$l->users_id); ?>"
                                            class="btn btn-sm btn-outline-warning" title="Verrouiller"
@@ -524,6 +527,7 @@
                                            onclick="return confirm('Déverrouiller ce compte ?')" style="font-size: 0.75rem;">
                                             <i class="fas fa-unlock"></i>
                                         </a>
+                                    <?php endif; ?>
                                     <?php endif; ?>
 
                                     <?php if(is_allowed('update_user')): ?>

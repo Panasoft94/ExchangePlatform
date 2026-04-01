@@ -1,4 +1,4 @@
-<?php $permissions = get_all_permissions(); ?>
+<?php $permissions_categories = get_all_permissions(); ?>
 
 <?php if(!empty($group)): ?>
 
@@ -41,9 +41,11 @@
 <?php
     $enabled_count = 0;
     $disabled_count = 0;
-    foreach($permissions as $key => $value) {
-        if(isset($group->{$key}) && $group->{$key} == 1) $enabled_count++;
-        else $disabled_count++;
+    foreach($permissions_categories as $cat) {
+        foreach($cat['perms'] as $key => $value) {
+            if(isset($group->{$key}) && $group->{$key} == 1) $enabled_count++;
+            else $disabled_count++;
+        }
     }
 ?>
 <div class="d-flex flex-wrap gap-3 mb-4">
@@ -60,23 +62,35 @@
 </div>
 
 <!-- Permissions Grid -->
-<div class="row g-3">
-    <?php foreach($permissions as $key => $value): ?>
-    <?php $is_enabled = (isset($group->{$key}) && $group->{$key} == 1); ?>
-    <div class="col-md-6 col-lg-4">
-        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: var(--bg-white); border: 1.5px solid <?php echo $is_enabled ? 'var(--primary)' : 'var(--border-color)'; ?>; transition: all 0.2s;">
-            <div style="width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem;
-                        background: <?php echo $is_enabled ? 'var(--primary)' : '#f1f3f4'; ?>; color: <?php echo $is_enabled ? '#fff' : 'var(--text-secondary)'; ?>;">
-                <i class="fas fa-<?php echo $is_enabled ? 'check' : 'xmark'; ?>"></i>
+<div class="row g-4">
+    <?php foreach($permissions_categories as $cat_key => $category): ?>
+    <div class="col-12">
+        <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom: 1px solid var(--border-color);">
+            <div style="width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; background: <?php echo $category['color']; ?>20; color: <?php echo $category['color']; ?>;">
+                <i class="fas <?php echo $category['icon']; ?>"></i>
             </div>
-            <div class="flex-grow-1 min-w-0">
-                <div class="small fw-medium text-truncate" style="color: var(--text-primary);"><?php echo $value; ?></div>
-                <?php if($is_enabled): ?>
-                    <span class="small" style="color: #188038;">Activée</span>
-                <?php else: ?>
-                    <span class="small" style="color: var(--text-secondary);">Désactivée</span>
-                <?php endif; ?>
+            <span class="small fw-semibold" style="color: var(--text-primary);"><?php echo $category['label']; ?></span>
+        </div>
+        <div class="row g-3">
+            <?php foreach($category['perms'] as $key => $value): ?>
+            <?php $is_enabled = (isset($group->{$key}) && $group->{$key} == 1); ?>
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: var(--bg-white); border: 1.5px solid <?php echo $is_enabled ? $category['color'] : 'var(--border-color)'; ?>; transition: all 0.2s;">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem;
+                                background: <?php echo $is_enabled ? $category['color'] : '#f1f3f4'; ?>; color: <?php echo $is_enabled ? '#fff' : 'var(--text-secondary)'; ?>;">
+                        <i class="fas fa-<?php echo $is_enabled ? 'check' : 'xmark'; ?>"></i>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="small fw-medium text-truncate" style="color: var(--text-primary);"><?php echo $value; ?></div>
+                        <?php if($is_enabled): ?>
+                            <span class="small" style="color: #188038;">Activée</span>
+                        <?php else: ?>
+                            <span class="small" style="color: var(--text-secondary);">Désactivée</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
+            <?php endforeach; ?>
         </div>
     </div>
     <?php endforeach; ?>

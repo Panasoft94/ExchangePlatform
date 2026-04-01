@@ -15,6 +15,7 @@ class Chat extends MX_Controller {
     }
 
     public function index($type = 'private', $partner_or_group_id = null) {
+        has_access('view_chat');
         $data = $this->build_view_data($type, $partner_or_group_id);
         $data['title'] = 'Messagerie & Chat';
 
@@ -40,6 +41,7 @@ class Chat extends MX_Controller {
     }
 
     public function send_message() {
+        has_access('envoyer_message');
         $session = $this->session->userdata('users');
         $sender_id = $session->users_id;
         
@@ -143,6 +145,7 @@ class Chat extends MX_Controller {
 
     // Créer un groupe public 
     public function create_group() {
+        has_access('create_chat_group');
         $session = $this->session->userdata('users');
         $creator_id = $session->users_id;
         

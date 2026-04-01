@@ -1,6 +1,6 @@
 <?php
     $safe_photo = isset($users->photo_profil) ? basename($users->photo_profil) : '';
-    $has_photo = ($safe_photo && file_exists('assets/img/avatar/' . $safe_photo));
+    $has_photo = ($safe_photo && file_exists(FCPATH . 'assets/img/avatar/' . $safe_photo));
     $initials = mb_strtoupper(mb_substr($users->users_prenom, 0, 1) . mb_substr($users->users_nom, 0, 1));
 ?>
 

@@ -1,4 +1,4 @@
-<?php $permissions = get_all_permissions(); ?>
+<?php $permissions_categories = get_all_permissions(); ?>
 
 <style>
 .perm-card-item {
@@ -23,6 +23,34 @@
     background-color: var(--primary);
     border-color: var(--primary);
 }
+.perm-category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.perm-category-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+.perm-toggle-all {
+    font-size: 0.75rem;
+    color: var(--primary);
+    cursor: pointer;
+    margin-left: auto;
+    border: none;
+    background: none;
+    font-weight: 600;
+}
+.perm-toggle-all:hover { text-decoration: underline; }
 </style>
 
 <!-- Page Header -->
@@ -70,24 +98,47 @@
                     Permissions du groupe
                 </div>
                 <div class="row g-3">
-                    <?php foreach($permissions as $key => $value): ?>
-                    <div class="col-md-6">
-                        <label for="perm_<?php echo $key; ?>" class="d-block mb-0">
-                            <div class="perm-card-item">
-                                <div class="form-check form-switch mb-0 me-3">
-                                    <input class="form-check-input" type="checkbox" role="switch"
-                                           id="perm_<?php echo $key; ?>"
-                                           name="group_permissions[]"
-                                           value="<?php echo $key; ?>"
-                                           <?php echo (isset($group->{$key}) && $group->{$key} == 1) ? 'checked' : ''; ?>
-                                           style="width: 2.5em; height: 1.25em;">
-                                </div>
-                                <span class="small fw-medium" style="color: var(--text-primary);"><?php echo $value; ?></span>
+                    <?php foreach($permissions_categories as $cat_key => $category): ?>
+                    <div class="col-12">
+                        <div class="perm-category-header">
+                            <div class="perm-category-icon" style="background: <?php echo $category['color']; ?>20; color: <?php echo $category['color']; ?>;">
+                                <i class="fas <?php echo $category['icon']; ?>"></i>
                             </div>
-                        </label>
+                            <span class="small fw-semibold" style="color: var(--text-primary);"><?php echo $category['label']; ?></span>
+                            <button type="button" class="perm-toggle-all" onclick="toggleCategory(this, '<?php echo $cat_key; ?>')">Tout cocher</button>
+                        </div>
+                        <div class="row g-2">
+                            <?php foreach($category['perms'] as $key => $value): ?>
+                            <div class="col-md-6 col-lg-4">
+                                <label for="perm_<?php echo $key; ?>" class="d-block mb-0">
+                                    <div class="perm-card-item">
+                                        <div class="form-check form-switch mb-0 me-3">
+                                            <input class="form-check-input perm-cat-<?php echo $cat_key; ?>" type="checkbox" role="switch"
+                                                   id="perm_<?php echo $key; ?>"
+                                                   name="group_permissions[]"
+                                                   value="<?php echo $key; ?>"
+                                                   <?php echo (isset($group->{$key}) && $group->{$key} == 1) ? 'checked' : ''; ?>
+                                                   style="width: 2.5em; height: 1.25em;">
+                                        </div>
+                                        <span class="small fw-medium" style="color: var(--text-primary);"><?php echo $value; ?></span>
+                                    </div>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
+
+                <script>
+                function toggleCategory(btn, catKey) {
+                    var boxes = document.querySelectorAll('.perm-cat-' + catKey);
+                    var allChecked = true;
+                    boxes.forEach(function(b) { if (!b.checked) allChecked = false; });
+                    boxes.forEach(function(b) { b.checked = !allChecked; b.dispatchEvent(new Event('change')); });
+                    btn.textContent = allChecked ? 'Tout cocher' : 'Tout décocher';
+                }
+                </script>
             </div>
 
             <div style="padding: 1.25rem 2rem; background: var(--bg-main); border-top: 1px solid var(--border-color);">

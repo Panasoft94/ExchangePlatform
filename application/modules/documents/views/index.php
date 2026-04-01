@@ -214,12 +214,16 @@ $active_vis = isset($filters['visibility']) ? $filters['visibility'] : '';
         <p class="mb-0 small" style="color:var(--text-secondary);">Gérez vos documents publics et privés</p>
     </div>
     <div class="d-flex gap-2 mt-2 mt-md-0">
+        <?php if(is_allowed('manage_categories')): ?>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#categoryModal">
             <i class="fas fa-tags me-1"></i> Catégories
         </button>
+        <?php endif; ?>
+        <?php if(is_allowed('upload_document')): ?>
         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal">
             <i class="fas fa-cloud-arrow-up me-1"></i> Nouveau document
         </button>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -402,9 +406,11 @@ $active_vis = isset($filters['visibility']) ? $filters['visibility'] : '';
     <?php else: ?>
         <div class="doc-empty-title">Aucun document</div>
         <div class="doc-empty-text">Commencez par partager un document avec votre équipe.</div>
+        <?php if(is_allowed('upload_document')): ?>
         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal">
             <i class="fas fa-cloud-arrow-up me-1"></i> Nouveau document
         </button>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 <?php endif; ?>

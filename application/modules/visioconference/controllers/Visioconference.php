@@ -120,6 +120,7 @@ class Visioconference extends MX_Controller
 
     public function reunion($id)
     {
+        has_access('join_reunion');
         $reunion = $this->Reunions_model->get($id);
         if (!$reunion) {
             $this->session->set_flashdata('error', 'Cette réunion n\'existe pas.');
@@ -304,6 +305,7 @@ class Visioconference extends MX_Controller
         if (!$session) {
             redirect('users/login');
         }
+        has_access('view_recordings');
 
         if ($reunion_id) {
             $reunion = $this->Reunions_model->get((int) $reunion_id);
@@ -379,12 +381,13 @@ class Visioconference extends MX_Controller
             return;
         }
 
+        // Owner of recording, host of reunion, or manage_recordings permission
         $reunion = $this->Reunions_model->get($recording->reunion_id);
         $is_host = $reunion && (int) $reunion->created_by === (int) $session->users_id;
         $is_recorder = (int) $recording->user_id === (int) $session->users_id;
-        $is_admin = $this->can_manage_visio_settings($session);
+        $has_manage_perm = is_allowed('manage_recordings');
 
-        if (!$is_host && !$is_recorder && !$is_admin) {
+        if (!$is_host && !$is_recorder && !$has_manage_perm) {
             echo json_encode(array('success' => false, 'message' => 'Vous n\'êtes pas autorisé à supprimer cet enregistrement'));
             return;
         }
@@ -541,12 +544,7 @@ class Visioconference extends MX_Controller
             return false;
         }
 
-        $role = isset($session->users_role) ? strtolower($session->users_role) : '';
-        if ($role !== '' && strpos($role, 'admin') !== false) {
-            return true;
-        }
-
-        if (function_exists('is_allowed') && (is_allowed('group') || is_allowed('user'))) {
+        if (function_exists('is_allowed') && is_allowed('manage_visio_config')) {
             return true;
         }
 

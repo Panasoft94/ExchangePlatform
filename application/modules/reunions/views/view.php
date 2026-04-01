@@ -212,10 +212,12 @@ function view_format_duration($min) {
                     <i class="fas fa-video"></i> <?php echo !empty($is_reunion_host) ? 'Démarrer' : 'Rejoindre'; ?>
                 </a>
                 <?php endif; ?>
+                <?php if(can_access_or_owner('manage_reunions', $reunion->created_by)): ?>
                 <a href="<?php echo site_url('reunions/update/' . (int)$reunion->id); ?>" class="btn btn-light btn-sm"><i class="fas fa-pen me-1"></i> Modifier</a>
                 <a href="<?php echo site_url('reunions/delete/' . (int)$reunion->id); ?>" class="btn btn-sm" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réunion ?');">
                     <i class="fas fa-trash-alt me-1"></i> Supprimer
                 </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

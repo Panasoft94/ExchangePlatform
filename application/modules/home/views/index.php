@@ -1,32 +1,114 @@
 <?php
 $session = $this->session->userdata('users');
 $prenom  = isset($session->users_prenom) ? htmlspecialchars($session->users_prenom) : 'Utilisateur';
+$nom     = isset($session->users_nom) ? htmlspecialchars($session->users_nom) : '';
+$role    = isset($session->users_role) ? htmlspecialchars($session->users_role) : '';
 
 setlocale(LC_TIME, 'fr_FR.UTF-8', 'fr_FR', 'fra');
 $months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 $days   = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 $now    = time();
+$hour   = (int) date('G', $now);
 $date_str = ucfirst($days[date('w', $now)]) . ' ' . date('j', $now) . ' ' . $months[date('n', $now) - 1] . ' ' . date('Y', $now);
+
+// Contextual greeting based on time of day
+if ($hour >= 5 && $hour < 12) {
+    $greeting = 'Bonjour';
+    $greeting_icon = '☀️';
+    $greeting_sub = 'Bonne matinée et excellent début de journée.';
+} elseif ($hour >= 12 && $hour < 14) {
+    $greeting = 'Bon appétit';
+    $greeting_icon = '🍽️';
+    $greeting_sub = 'Prenez une pause bien méritée avant de continuer.';
+} elseif ($hour >= 14 && $hour < 18) {
+    $greeting = 'Bon après-midi';
+    $greeting_icon = '⚡';
+    $greeting_sub = 'Restez productif, la journée avance bien.';
+} elseif ($hour >= 18 && $hour < 21) {
+    $greeting = 'Bonsoir';
+    $greeting_icon = '🌆';
+    $greeting_sub = 'Belle fin de journée à vous.';
+} else {
+    $greeting = 'Bonne nuit';
+    $greeting_icon = '🌙';
+    $greeting_sub = 'Travail tardif ? N\'oubliez pas de vous reposer.';
+}
+
+// Summary counters for welcome banner
+$reunions_today = isset($nb_reunions_today) ? (int) $nb_reunions_today : 0;
+$reunions_upcoming = isset($nb_reunions_upcoming) ? (int) $nb_reunions_upcoming : 0;
 ?>
 
 <style>
 /* ===== Dashboard Scoped Styles ===== */
-.dash-welcome { margin-bottom: 2rem; }
-.dash-welcome h2 {
-    font-size: 1.75rem;
+
+/* Welcome Banner */
+.dash-welcome-banner {
+    background: linear-gradient(135deg, var(--primary), #4285f4 50%, #6ea8fe);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 2rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+.dash-welcome-banner::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    right: -8%;
+    width: 280px;
+    height: 280px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.dash-welcome-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    right: 10%;
+    width: 180px;
+    height: 180px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.dash-welcome-banner .wb-content { position: relative; z-index: 1; }
+.dash-welcome-banner .wb-greeting {
+    font-size: 1.65rem;
     font-weight: 700;
-    color: var(--text-primary);
     margin: 0 0 4px;
+    line-height: 1.3;
 }
-.dash-welcome p {
-    color: var(--text-secondary);
+.dash-welcome-banner .wb-subtitle {
     font-size: 0.9rem;
-    margin: 0;
+    opacity: 0.85;
+    margin: 0 0 12px;
+    font-weight: 400;
 }
-.dash-date {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 2px;
+.dash-welcome-banner .wb-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+.dash-welcome-banner .wb-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(4px);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+.dash-welcome-banner .wb-meta-item i { font-size: 0.72rem; opacity: 0.9; }
+@media (max-width: 576px) {
+    .dash-welcome-banner { padding: 1.25rem 1.25rem; }
+    .dash-welcome-banner .wb-greeting { font-size: 1.3rem; }
+    .dash-welcome-banner .wb-meta { gap: 0.5rem; }
 }
 
 /* Stat Cards */
@@ -221,11 +303,32 @@ $date_str = ucfirst($days[date('w', $now)]) . ' ' . date('j', $now) . ' ' . $mon
 }
 </style>
 
-<!-- ===== Welcome Section ===== -->
-<div class="dash-welcome">
-    <h2>Bonjour, <?php echo $prenom; ?> <span aria-hidden="true">👋</span></h2>
-    <p>Voici un aperçu de votre plateforme</p>
-    <div class="dash-date"><i class="fa-regular fa-calendar me-1"></i><?php echo $date_str; ?></div>
+<!-- ===== Welcome Banner ===== -->
+<div class="dash-welcome-banner">
+    <div class="wb-content">
+        <div class="wb-greeting"><?php echo $greeting; ?>, <?php echo $prenom; ?> <span aria-hidden="true"><?php echo $greeting_icon; ?></span></div>
+        <p class="wb-subtitle"><?php echo $greeting_sub; ?> Bienvenue sur votre espace de collaboration MFPRA.</p>
+        <div class="wb-meta">
+            <span class="wb-meta-item">
+                <i class="fa-regular fa-calendar"></i> <?php echo $date_str; ?>
+            </span>
+            <?php if ($role): ?>
+            <span class="wb-meta-item">
+                <i class="fa-solid fa-shield-halved"></i> <?php echo $role; ?>
+            </span>
+            <?php endif; ?>
+            <?php if ($reunions_today > 0): ?>
+            <span class="wb-meta-item">
+                <i class="fa-solid fa-video"></i> <?php echo $reunions_today; ?> réunion<?php echo $reunions_today > 1 ? 's' : ''; ?> aujourd'hui
+            </span>
+            <?php endif; ?>
+            <?php if ($reunions_upcoming > 0): ?>
+            <span class="wb-meta-item">
+                <i class="fa-regular fa-calendar-check"></i> <?php echo $reunions_upcoming; ?> à venir
+            </span>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- ===== Statistics Cards ===== -->

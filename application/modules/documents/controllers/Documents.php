@@ -15,6 +15,7 @@ class Documents extends MX_Controller
     public function index()
     {
         check();
+        has_access('view_documents');
         $session = $this->session->userdata('users');
         $user_id = (int) $session->users_id;
 
@@ -87,6 +88,7 @@ class Documents extends MX_Controller
     public function upload()
     {
         check();
+        has_access('upload_document');
         $session = $this->session->userdata('users');
 
         if ($this->input->method() !== 'post') {
@@ -158,7 +160,7 @@ class Documents extends MX_Controller
         }
 
         $document = $this->Documents_model->get($id);
-        if (!$document || (int) $document->uploaded_by !== (int) $session->users_id) {
+        if (!$document || !can_access_or_owner('manage_documents', $document->uploaded_by)) {
             $this->session->set_flashdata('error', 'Vous ne pouvez modifier que vos propres documents.');
             redirect('documents');
             return;
@@ -321,9 +323,8 @@ class Documents extends MX_Controller
             return;
         }
 
-        // Only owner or admin can delete
-        $is_admin = isset($session->users_role) && strpos(strtolower($session->users_role), 'admin') !== false;
-        if ((int) $document->uploaded_by !== (int) $session->users_id && !$is_admin) {
+        // Only owner or manage_documents permission can delete
+        if (!can_access_or_owner('manage_documents', $document->uploaded_by)) {
             $this->session->set_flashdata('error', 'Vous ne pouvez supprimer que vos propres documents.');
             redirect('documents');
             return;
@@ -346,6 +347,7 @@ class Documents extends MX_Controller
     public function create_category()
     {
         check();
+        has_access('manage_categories');
         $session = $this->session->userdata('users');
 
         if ($this->input->method() !== 'post') {
@@ -376,6 +378,7 @@ class Documents extends MX_Controller
     public function delete_category($id = NULL)
     {
         check();
+        has_access('manage_categories');
         if ($this->input->method() !== 'post' || !$id) {
             redirect('documents');
             return;

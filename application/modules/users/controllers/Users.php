@@ -203,9 +203,7 @@
 
    
 		public function add(){
-			has_access('user');
-            
-			check();
+			has_access('add_user');
 		
 			$data['liste_group'] = $this->Group_model->get_all();
 			$this->load->library('form_validation');
@@ -390,8 +388,6 @@
 				$users_nom =  strtoupper($this->input->post('users_nom'));
 				$users_prenom =  ucfirst(strtolower($this->input->post('users_prenom')));
 				$users_password_hach = md5($users_password);
-                $photo_profil = $this->input->post('photo_profil');
-				
 				$rec = date('Y');
 				$ok = date('H:i');
 				$id = $session->users_id;
@@ -402,7 +398,6 @@
 					'users_email' => $users_email,
 					'users_nom' => $users_nom,
 					'users_prenom' => $users_prenom,
-					'photo_profil' => $photo_profil,
 				);
 				
 				    $config['upload_path']          = './assets/img/avatar/';
@@ -452,8 +447,12 @@
 
 
 		public function update($users_id){
-			has_access('user');
+			// Owner can edit own profile, or need update_user permission
+			check();
 			$session = $this->session->userdata('users');
+			if ((int)$session->users_id !== (int)$users_id) {
+				has_access('update_user');
+			}
 
 			$user = $this->Users_model->get($users_id);
 			if(!$user){
@@ -555,7 +554,7 @@
 
 
 		public function delete($users_id){
-			has_access('user');
+			has_access('delete_user');
 
 			$session = $this->session->userdata('users');
 			$users = $this->Users_model->get($users_id);
@@ -680,7 +679,7 @@
 					'group_name' => $group_name,
 				);
 
-				foreach(get_all_permissions() as $key => $value){
+				foreach(get_flat_permissions() as $key => $value){
 					$params[$key] = 0;
 				}
 
@@ -759,6 +758,7 @@
 		}
 	 public function verrouiller_compte_user($users_id)
 	   {
+		  has_access('lock_user');
 		  $user = $this->Users_model->get($users_id);
 		  
 		  if($user)
@@ -793,6 +793,7 @@
 
 	  public function deverrouiller_compte_user($users_id)
 		{
+			has_access('lock_user');
 			$user = $this->Users_model->get($users_id);
 
 			if($user)

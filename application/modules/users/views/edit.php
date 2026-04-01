@@ -7,7 +7,7 @@
     padding: 2rem 2rem 4rem;
     position: relative;
     overflow: hidden;
-    margin-bottom: 3.5rem;
+    margin-bottom: 0;
 }
 .profile-hero::before {
     content: '';
@@ -34,10 +34,12 @@
     z-index: 2;
 }
 .profile-avatar-wrapper {
-    position: absolute;
-    bottom: -40px;
-    left: 2rem;
+    position: relative;
     z-index: 5;
+    margin-top: -48px;
+    margin-left: 2rem;
+    margin-bottom: 0;
+    width: fit-content;
 }
 .profile-avatar-large {
     width: 96px;
@@ -45,11 +47,11 @@
     border-radius: 50%;
     border: 4px solid var(--bg-white);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    object-fit: cover;
     background: var(--primary-light);
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     font-size: 2rem;
     font-weight: 700;
     color: var(--primary);
@@ -59,13 +61,14 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
+    display: block;
 }
 .profile-info-bar {
     background: var(--bg-white);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    margin-top: -1px;
-    padding: 1rem 2rem 1rem 8.5rem;
+    margin-top: 0.75rem;
+    padding: 1rem 2rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -75,12 +78,12 @@
 }
 @media (max-width: 768px) {
     .profile-info-bar {
-        padding: 3.5rem 1.5rem 1rem;
+        padding: 1rem 1.5rem;
         flex-direction: column;
         align-items: flex-start;
     }
     .profile-avatar-wrapper {
-        left: 1.5rem;
+        margin-left: 1.5rem;
     }
 }
 .profile-stat-item {
@@ -162,7 +165,7 @@
 
 <?php
     $safe_photo = isset($users->photo_profil) ? basename($users->photo_profil) : '';
-    $has_photo = ($safe_photo && file_exists('assets/img/avatar/' . $safe_photo));
+    $has_photo = ($safe_photo && file_exists(FCPATH . 'assets/img/avatar/' . $safe_photo));
     $initials = mb_strtoupper(mb_substr($users->users_prenom, 0, 1) . mb_substr($users->users_nom, 0, 1));
 ?>
 
@@ -177,14 +180,14 @@
             <i class="fas fa-at me-1"></i><?php echo htmlspecialchars($users->users_username); ?>
         </p>
     </div>
-    <div class="profile-avatar-wrapper">
-        <div class="profile-avatar-large">
-            <?php if($has_photo): ?>
-                <img src="<?php echo base_url('assets/img/avatar/' . htmlspecialchars($safe_photo)); ?>" alt="Photo de profil">
-            <?php else: ?>
-                <?php echo htmlspecialchars($initials); ?>
-            <?php endif; ?>
-        </div>
+</div>
+<div class="profile-avatar-wrapper">
+    <div class="profile-avatar-large">
+        <?php if($has_photo): ?>
+            <img src="<?php echo base_url('assets/img/avatar/' . htmlspecialchars($safe_photo)); ?>" alt="Photo de profil">
+        <?php else: ?>
+            <?php echo htmlspecialchars($initials); ?>
+        <?php endif; ?>
     </div>
 </div>
 

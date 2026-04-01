@@ -3,14 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le :  mar. 31 mars 2026 à 16:58
+-- Généré le :  mer. 01 avr. 2026 à 14:31
 -- Version du serveur :  5.7.26
 -- Version de PHP :  5.6.40
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
-SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -49,8 +48,8 @@ TRUNCATE TABLE `chat_groups`;
 --
 
 INSERT INTO `chat_groups` (`id`, `name`, `created_by`, `created_at`) VALUES
-(1, 'IT-Dévéloppement', 1, '2026-03-29 13:08:47'),
-(2, 'Core Senior', 1, '2026-03-29 13:10:08');
+(1, 'IT-Dévéloppement', 1, '2026-03-29 15:08:47'),
+(2, 'Core Senior', 1, '2026-03-29 15:10:08');
 
 -- --------------------------------------------------------
 
@@ -76,12 +75,12 @@ TRUNCATE TABLE `chat_group_members`;
 --
 
 INSERT INTO `chat_group_members` (`group_id`, `user_id`, `joined_at`) VALUES
-(1, 1, '2026-03-29 13:08:47'),
-(1, 2, '2026-03-29 14:41:44'),
-(1, 3, '2026-03-29 13:08:47'),
-(2, 1, '2026-03-29 13:10:08'),
-(2, 2, '2026-03-29 13:10:08'),
-(2, 4, '2026-03-31 08:26:04');
+(1, 1, '2026-03-29 15:08:47'),
+(1, 2, '2026-03-29 16:41:44'),
+(1, 3, '2026-03-29 15:08:47'),
+(2, 1, '2026-03-29 15:10:08'),
+(2, 2, '2026-03-29 15:10:08'),
+(2, 4, '2026-03-31 10:26:04');
 
 -- --------------------------------------------------------
 
@@ -114,10 +113,10 @@ TRUNCATE TABLE `chat_message_attachments`;
 --
 
 INSERT INTO `chat_message_attachments` (`id`, `message_id`, `original_name`, `stored_name`, `filepath`, `mime_type`, `file_ext`, `file_size`, `uploaded_at`) VALUES
-(1, 17, 'Temple_Facture_PANASOFT.docx', '11c207e1f52d1f0ffe6be48811292400.docx', 'assets/uploads/chat/11c207e1f52d1f0ffe6be48811292400.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx', 76687, '2026-03-30 12:10:59'),
-(2, 19, 'Temple_Facture_PANASOFT.docx', 'ddf37399c730c99dc77954ef72d93622.docx', 'assets/uploads/chat/ddf37399c730c99dc77954ef72d93622.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx', 76687, '2026-03-30 12:15:19'),
-(3, 26, 'Temple_Facture_PANASOFT.docx', '79ff480e2bd7ee6916583c427992d1e5.docx', 'assets/uploads/chat/79ff480e2bd7ee6916583c427992d1e5.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx', 76687, '2026-03-31 08:27:10'),
-(4, 38, 'IMG_20250325_140518.jpg', '69c9467a4f9838becd19df163d969986.jpg', 'assets/uploads/chat/69c9467a4f9838becd19df163d969986.jpg', 'image/jpeg', '.jpg', 3030118, '2026-03-31 13:21:15');
+(1, 17, 'Temple_Facture_PANASOFT.docx', '11c207e1f52d1f0ffe6be48811292400.docx', 'assets/uploads/chat/11c207e1f52d1f0ffe6be48811292400.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx', 76687, '2026-03-30 14:10:59'),
+(2, 19, 'Temple_Facture_PANASOFT.docx', 'ddf37399c730c99dc77954ef72d93622.docx', 'assets/uploads/chat/ddf37399c730c99dc77954ef72d93622.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx', 76687, '2026-03-30 14:15:19'),
+(3, 26, 'Temple_Facture_PANASOFT.docx', '79ff480e2bd7ee6916583c427992d1e5.docx', 'assets/uploads/chat/79ff480e2bd7ee6916583c427992d1e5.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx', 76687, '2026-03-31 10:27:10'),
+(4, 38, 'IMG_20250325_140518.jpg', '69c9467a4f9838becd19df163d969986.jpg', 'assets/uploads/chat/69c9467a4f9838becd19df163d969986.jpg', 'image/jpeg', '.jpg', 3030118, '2026-03-31 15:21:15');
 
 -- --------------------------------------------------------
 
@@ -146,14 +145,15 @@ TRUNCATE TABLE `chat_read_states`;
 --
 
 INSERT INTO `chat_read_states` (`user_id`, `chat_type`, `target_id`, `last_read_message_id`, `updated_at`) VALUES
-(1, 'group', 1, 42, '2026-03-31 14:08:15'),
-(1, 'group', 2, 26, '2026-03-31 12:06:18'),
-(1, 'private', 3, 23, '2026-03-31 08:25:49'),
-(3, 'group', 1, 42, '2026-03-31 13:38:27'),
-(3, 'private', 1, 23, '2026-03-31 08:26:22'),
-(4, 'group', 2, 26, '2026-03-31 10:08:13'),
-(4, 'private', 2, 0, '2026-03-31 10:08:10'),
-(4, 'private', 3, 0, '2026-03-31 10:08:08');
+(1, 'group', 1, 42, '2026-04-01 16:28:46'),
+(1, 'group', 2, 26, '2026-04-01 16:28:37'),
+(1, 'private', 3, 23, '2026-03-31 21:21:45'),
+(1, 'private', 4, 0, '2026-04-01 14:41:30'),
+(3, 'group', 1, 42, '2026-04-01 16:28:59'),
+(3, 'private', 1, 23, '2026-03-31 10:26:22'),
+(4, 'group', 2, 26, '2026-03-31 12:08:13'),
+(4, 'private', 2, 0, '2026-03-31 12:08:10'),
+(4, 'private', 3, 0, '2026-03-31 12:08:08');
 
 -- --------------------------------------------------------
 
@@ -191,7 +191,7 @@ TRUNCATE TABLE `documents`;
 --
 
 INSERT INTO `documents` (`id`, `filename`, `filepath`, `description`, `visibility`, `category_id`, `file_size`, `file_type`, `download_count`, `uploaded_by`, `created_at`, `updated_at`) VALUES
-(1, 'Temple_Facture_PANASOFT.docx', 'assets/uploads/documents/e189d57062943ba9ff59fe984a1364f9.docx', 'Ceci est un test lors du developpement', 'private', 4, 75776, 'docx', 0, 1, '2026-03-31 10:53:57', '2026-03-31 10:59:09');
+(1, 'Temple_Facture_PANASOFT.docx', 'assets/uploads/documents/e189d57062943ba9ff59fe984a1364f9.docx', 'Ceci est un test lors du developpement', 'private', 4, 75776, 'docx', 0, 1, '2026-03-31 12:53:57', '2026-03-31 12:59:09');
 
 -- --------------------------------------------------------
 
@@ -220,13 +220,12 @@ TRUNCATE TABLE `document_categories`;
 --
 
 INSERT INTO `document_categories` (`id`, `name`, `color`, `icon`, `created_by`, `created_at`) VALUES
-(1, 'Général', '#1a73e8', 'fas fa-folder', 1, '2026-03-31 10:37:07'),
-(2, 'Rapports', '#34a853', 'fas fa-chart-bar', 1, '2026-03-31 10:37:07'),
-(3, 'Présentations', '#fa7b17', 'fas fa-presentation-screen', 1, '2026-03-31 10:37:07'),
-(4, 'Procès-verbaux', '#a142f4', 'fas fa-gavel', 1, '2026-03-31 10:37:07'),
-(5, 'Formulaires', '#ea4335', 'fas fa-file-lines', 1, '2026-03-31 10:37:07'),
-(6, 'Images & Médias', '#f9ab00', 'fas fa-images', 1, '2026-03-31 10:37:07'),
-(7, 'Rapports mensuel', '#2b5a97', 'fas fa-folder', 3, '2026-03-31 10:52:56');
+(1, 'Général', '#1a73e8', 'fas fa-folder', 1, '2026-03-31 12:37:07'),
+(2, 'Rapports', '#34a853', 'fas fa-chart-bar', 1, '2026-03-31 12:37:07'),
+(3, 'Présentations', '#fa7b17', 'fas fa-presentation-screen', 1, '2026-03-31 12:37:07'),
+(4, 'Procès-verbaux', '#a142f4', 'fas fa-gavel', 1, '2026-03-31 12:37:07'),
+(6, 'Images & Médias', '#f9ab00', 'fas fa-images', 1, '2026-03-31 12:37:07'),
+(7, 'Rapports mensuel', '#2b5a97', 'fas fa-folder', 3, '2026-03-31 12:52:56');
 
 -- --------------------------------------------------------
 
@@ -258,7 +257,7 @@ TRUNCATE TABLE `document_shares`;
 --
 
 INSERT INTO `document_shares` (`id`, `document_id`, `shared_with`, `shared_by`, `can_download`, `created_at`) VALUES
-(1, 1, 3, 1, 1, '2026-03-31 10:59:22');
+(1, 1, 3, 1, 1, '2026-03-31 12:59:22');
 
 -- --------------------------------------------------------
 
@@ -283,6 +282,22 @@ CREATE TABLE IF NOT EXISTS `group` (
   `repondre_message` int(1) NOT NULL,
   `boite_reception` int(1) NOT NULL,
   `delete_message` int(1) NOT NULL,
+  `super_admin` tinyint(1) NOT NULL DEFAULT '0',
+  `lock_user` tinyint(1) NOT NULL DEFAULT '0',
+  `view_reunions` tinyint(1) NOT NULL DEFAULT '0',
+  `create_reunion` tinyint(1) NOT NULL DEFAULT '0',
+  `manage_reunions` tinyint(1) NOT NULL DEFAULT '0',
+  `join_reunion` tinyint(1) NOT NULL DEFAULT '0',
+  `view_documents` tinyint(1) NOT NULL DEFAULT '0',
+  `upload_document` tinyint(1) NOT NULL DEFAULT '0',
+  `manage_documents` tinyint(1) NOT NULL DEFAULT '0',
+  `manage_categories` tinyint(1) NOT NULL DEFAULT '0',
+  `view_chat` tinyint(1) NOT NULL DEFAULT '0',
+  `create_chat_group` tinyint(1) NOT NULL DEFAULT '0',
+  `view_recordings` tinyint(1) NOT NULL DEFAULT '0',
+  `record_reunion` tinyint(1) NOT NULL DEFAULT '0',
+  `manage_recordings` tinyint(1) NOT NULL DEFAULT '0',
+  `manage_visio_config` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`group_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
@@ -295,9 +310,9 @@ TRUNCATE TABLE `group`;
 -- Déchargement des données de la table `group`
 --
 
-INSERT INTO `group` (`group_id`, `group_name`, `is_system`, `user`, `view_history`, `group`, `admin`, `add_user`, `update_user`, `delete_user`, `edit_user`, `envoyer_message`, `repondre_message`, `boite_reception`, `delete_message`) VALUES
-(1, 'default', 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(2, 'Administrateur', 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+INSERT INTO `group` (`group_id`, `group_name`, `is_system`, `user`, `view_history`, `group`, `admin`, `add_user`, `update_user`, `delete_user`, `edit_user`, `envoyer_message`, `repondre_message`, `boite_reception`, `delete_message`, `super_admin`, `lock_user`, `view_reunions`, `create_reunion`, `manage_reunions`, `join_reunion`, `view_documents`, `upload_document`, `manage_documents`, `manage_categories`, `view_chat`, `create_chat_group`, `view_recordings`, `record_reunion`, `manage_recordings`, `manage_visio_config`) VALUES
+(1, 'default', 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0),
+(2, 'Administrateur', 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -312,7 +327,7 @@ CREATE TABLE IF NOT EXISTS `history` (
   `history_action` varchar(255) NOT NULL,
   `history_users` varchar(255) NOT NULL,
   PRIMARY KEY (`history_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8;
 
 --
 -- Tronquer la table avant d'insérer `history`
@@ -324,71 +339,84 @@ TRUNCATE TABLE `history`;
 --
 
 INSERT INTO `history` (`history_id`, `history_date`, `history_action`, `history_users`) VALUES
-(23, '2023-07-22 17:57:43', 'Connexion de l\'utilisateur admin admin', 'admin admin'),
-(24, '2023-07-22 17:59:57', 'Déconnexion de l\'utilisateur  admin admin', 'admin admin'),
-(25, '2023-07-22 18:13:24', 'Connexion de l\'utilisateur admin admin', 'admin admin'),
-(26, '2023-07-22 18:13:54', 'Modification de compte de l\'utilisateur ADMIN Admin', 'ADMIN Admin'),
-(27, '2024-06-21 08:26:55', 'Connexion de l\'utilisateur ADMIN Admin', 'ADMIN Admin'),
-(28, '2024-06-21 08:41:14', 'Déconnexion de l\'utilisateur  ADMIN Admin', 'ADMIN Admin'),
-(29, '2024-06-21 08:42:05', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(30, '2024-06-21 08:44:20', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(31, '2024-06-21 08:49:07', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(32, '2024-06-21 08:49:24', 'Modification du groupe  Administrateur', 'DJIMTOLOUMA Anicet'),
-(33, '2024-06-21 08:51:05', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(34, '2024-06-21 08:51:09', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(35, '2024-06-21 08:53:08', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(36, '2024-06-21 08:53:12', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(37, '2024-06-21 08:56:24', 'Modification de compte de l\'utilisateur DOKOSSI Gomer', 'DJIMTOLOUMA Anicet'),
-(38, '2024-06-21 08:56:30', 'Modification de compte de l\'utilisateur TOAPORO Anniel', 'DJIMTOLOUMA Anicet'),
-(39, '2026-03-29 12:23:50', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(40, '2026-03-29 13:17:19', 'Modification de compte de l\'utilisateur DOKOSSI Gomer', 'DJIMTOLOUMA Anicet'),
-(41, '2026-03-29 13:17:58', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(42, '2026-03-29 13:22:24', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(43, '2026-03-29 13:24:00', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(44, '2026-03-29 13:25:55', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(45, '2026-03-29 13:29:42', 'Création de l\'utilisateur DECKORO Fred', 'DJIMTOLOUMA Anicet'),
-(46, '2026-03-29 13:53:43', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(47, '2026-03-29 14:55:35', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(48, '2026-03-29 14:55:45', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(49, '2026-03-29 15:10:58', 'Création de la réunion : Réunion de planification', 'DJIMTOLOUMA Anicet'),
-(50, '2026-03-29 15:11:15', 'Suppression de la réunion : Réunion de planification', 'DJIMTOLOUMA Anicet'),
-(51, '2026-03-29 15:37:12', 'Connexion de l\'utilisateur DECKORO Fred', 'DECKORO Fred'),
-(52, '2026-03-29 15:40:17', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(53, '2026-03-29 15:45:23', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(54, '2026-03-29 15:55:43', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(55, '2026-03-29 15:56:05', 'Déconnexion de l\'utilisateur  DECKORO Fred', 'DECKORO Fred'),
-(56, '2026-03-29 15:56:11', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(57, '2026-03-30 11:20:58', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(58, '2026-03-30 11:24:27', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(59, '2026-03-30 14:29:05', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(60, '2026-03-30 14:29:15', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(61, '2026-03-31 07:33:23', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(62, '2026-03-31 08:01:56', 'Connexion de l\'utilisateur DECKORO Fred', 'DECKORO Fred'),
-(63, '2026-03-31 08:02:40', 'Déconnexion de l\'utilisateur  DECKORO Fred', 'DECKORO Fred'),
-(64, '2026-03-31 08:02:48', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(65, '2026-03-31 08:26:24', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(66, '2026-03-31 08:26:31', 'Connexion de l\'utilisateur DECKORO Fred', 'DECKORO Fred'),
-(67, '2026-03-31 08:28:23', 'Ajout de participants à la réunion : Réunion de planification', 'DJIMTOLOUMA Anicet'),
-(68, '2026-03-31 08:52:29', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(69, '2026-03-31 08:53:01', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(70, '2026-03-31 10:19:36', 'Changement de statut de la réunion \"Réunion de planification\" → En cours', 'DJIMTOLOUMA Anicet'),
-(71, '2026-03-31 10:44:19', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(72, '2026-03-31 10:53:57', 'Partage du document : Temple_Facture_PANASOFT.docx (public)', 'DJIMTOLOUMA Anicet'),
-(73, '2026-03-31 10:59:09', 'Modification du document : Temple_Facture_PANASOFT.docx', 'DJIMTOLOUMA Anicet'),
-(74, '2026-03-31 12:05:55', 'Modification de compte de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(75, '2026-03-31 12:18:54', 'Déconnexion de l\'utilisateur  DECKORO Fred', 'DECKORO Fred'),
-(76, '2026-03-31 12:31:48', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(77, '2026-03-31 12:32:09', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(78, '2026-03-31 12:34:27', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(79, '2026-03-31 12:34:50', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(80, '2026-03-31 12:38:13', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(81, '2026-03-31 12:38:21', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(82, '2026-03-31 12:48:05', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(83, '2026-03-31 12:48:12', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
-(84, '2026-03-31 13:26:53', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(85, '2026-03-31 13:36:38', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(86, '2026-03-31 14:08:19', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
-(87, '2026-03-31 14:08:33', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer');
+(23, '2023-07-22 19:57:43', 'Connexion de l\'utilisateur admin admin', 'admin admin'),
+(24, '2023-07-22 19:59:57', 'Déconnexion de l\'utilisateur  admin admin', 'admin admin'),
+(25, '2023-07-22 20:13:24', 'Connexion de l\'utilisateur admin admin', 'admin admin'),
+(26, '2023-07-22 20:13:54', 'Modification de compte de l\'utilisateur ADMIN Admin', 'ADMIN Admin'),
+(27, '2024-06-21 10:26:55', 'Connexion de l\'utilisateur ADMIN Admin', 'ADMIN Admin'),
+(28, '2024-06-21 10:41:14', 'Déconnexion de l\'utilisateur  ADMIN Admin', 'ADMIN Admin'),
+(29, '2024-06-21 10:42:05', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(30, '2024-06-21 10:44:20', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(31, '2024-06-21 10:49:07', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(32, '2024-06-21 10:49:24', 'Modification du groupe  Administrateur', 'DJIMTOLOUMA Anicet'),
+(33, '2024-06-21 10:51:05', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(34, '2024-06-21 10:51:09', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(35, '2024-06-21 10:53:08', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(36, '2024-06-21 10:53:12', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(37, '2024-06-21 10:56:24', 'Modification de compte de l\'utilisateur DOKOSSI Gomer', 'DJIMTOLOUMA Anicet'),
+(38, '2024-06-21 10:56:30', 'Modification de compte de l\'utilisateur TOAPORO Anniel', 'DJIMTOLOUMA Anicet'),
+(39, '2026-03-29 14:23:50', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(40, '2026-03-29 15:17:19', 'Modification de compte de l\'utilisateur DOKOSSI Gomer', 'DJIMTOLOUMA Anicet'),
+(41, '2026-03-29 15:17:58', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(42, '2026-03-29 15:22:24', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(43, '2026-03-29 15:24:00', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(44, '2026-03-29 15:25:55', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(45, '2026-03-29 15:29:42', 'Création de l\'utilisateur DECKORO Fred', 'DJIMTOLOUMA Anicet'),
+(46, '2026-03-29 15:53:43', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(47, '2026-03-29 16:55:35', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(48, '2026-03-29 16:55:45', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(49, '2026-03-29 17:10:58', 'Création de la réunion : Réunion de planification', 'DJIMTOLOUMA Anicet'),
+(50, '2026-03-29 17:11:15', 'Suppression de la réunion : Réunion de planification', 'DJIMTOLOUMA Anicet'),
+(51, '2026-03-29 17:37:12', 'Connexion de l\'utilisateur DECKORO Fred', 'DECKORO Fred'),
+(52, '2026-03-29 17:40:17', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(53, '2026-03-29 17:45:23', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(54, '2026-03-29 17:55:43', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(55, '2026-03-29 17:56:05', 'Déconnexion de l\'utilisateur  DECKORO Fred', 'DECKORO Fred'),
+(56, '2026-03-29 17:56:11', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(57, '2026-03-30 13:20:58', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(58, '2026-03-30 13:24:27', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(59, '2026-03-30 16:29:05', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(60, '2026-03-30 16:29:15', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(65, '2026-03-31 10:26:24', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(66, '2026-03-31 10:26:31', 'Connexion de l\'utilisateur DECKORO Fred', 'DECKORO Fred'),
+(67, '2026-03-31 10:28:23', 'Ajout de participants à la réunion : Réunion de planification', 'DJIMTOLOUMA Anicet'),
+(68, '2026-03-31 10:52:29', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(69, '2026-03-31 10:53:01', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(70, '2026-03-31 12:19:36', 'Changement de statut de la réunion \"Réunion de planification\" → En cours', 'DJIMTOLOUMA Anicet'),
+(71, '2026-03-31 12:44:19', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(72, '2026-03-31 12:53:57', 'Partage du document : Temple_Facture_PANASOFT.docx (public)', 'DJIMTOLOUMA Anicet'),
+(73, '2026-03-31 12:59:09', 'Modification du document : Temple_Facture_PANASOFT.docx', 'DJIMTOLOUMA Anicet'),
+(74, '2026-03-31 14:05:55', 'Modification de compte de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(75, '2026-03-31 14:18:54', 'Déconnexion de l\'utilisateur  DECKORO Fred', 'DECKORO Fred'),
+(76, '2026-03-31 14:31:48', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(77, '2026-03-31 14:32:09', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(78, '2026-03-31 14:34:27', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(79, '2026-03-31 14:34:50', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(80, '2026-03-31 14:38:13', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(81, '2026-03-31 14:38:21', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(82, '2026-03-31 14:48:05', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(83, '2026-03-31 14:48:12', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(84, '2026-03-31 15:26:53', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(85, '2026-03-31 15:36:38', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(86, '2026-03-31 16:08:19', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(87, '2026-03-31 16:08:33', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(88, '2026-03-31 21:19:26', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(89, '2026-03-31 21:22:54', 'Vidage des données de traces des utilisateurs par #Admin', 'DJIMTOLOUMA Anicet'),
+(90, '2026-03-31 21:24:43', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(91, '2026-04-01 09:39:18', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(92, '2026-04-01 10:21:36', 'Déconnexion de l\'utilisateur   ', ''),
+(93, '2026-04-01 10:21:44', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(94, '2026-04-01 10:47:02', 'Connexion de l\'utilisateur DECKORO Fred', 'DECKORO Fred'),
+(95, '2026-04-01 11:09:53', 'Déconnexion de l\'utilisateur  DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(96, '2026-04-01 11:10:00', 'Déconnexion de l\'utilisateur  DECKORO Fred', 'DECKORO Fred'),
+(97, '2026-04-01 11:10:09', 'Déconnexion de l\'utilisateur  DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(98, '2026-04-01 14:33:10', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(99, '2026-04-01 15:47:21', 'Modification du groupe  Administrateur', 'DJIMTOLOUMA Anicet'),
+(100, '2026-04-01 15:48:11', 'Modification du groupe  Administrateur', 'DJIMTOLOUMA Anicet'),
+(101, '2026-04-01 15:48:56', 'Déconnexion de l\'utilisateur   ', ''),
+(102, '2026-04-01 15:49:13', 'Connexion de l\'utilisateur DOKOSSI Gomer', 'DOKOSSI Gomer'),
+(103, '2026-04-01 16:06:49', 'Modification de compte de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet'),
+(104, '2026-04-01 16:11:06', 'Connexion de l\'utilisateur DJIMTOLOUMA Anicet', 'DJIMTOLOUMA Anicet');
 
 -- --------------------------------------------------------
 
@@ -420,48 +448,48 @@ TRUNCATE TABLE `messages`;
 --
 
 INSERT INTO `messages` (`id`, `sender_id`, `receiver_id`, `group_id`, `content`, `created_at`) VALUES
-(1, 1, NULL, 1, 'Bonjour dev, c\'est comment', '2026-03-29 13:09:13'),
-(2, 3, NULL, 1, 'Oui bonjour , ça va bien', '2026-03-29 13:18:33'),
-(3, 3, NULL, 1, 'Et de ton coté ?', '2026-03-29 13:18:43'),
-(4, 1, NULL, 1, 'Je me porte bien par la grace de Dieu', '2026-03-29 13:20:12'),
-(5, 1, NULL, 1, 'Je suis entrain de developper un nouveau systeme de traitement des données des FAE', '2026-03-29 15:05:50'),
-(6, 1, NULL, 1, 'OK', '2026-03-29 15:06:13'),
-(7, 1, NULL, 1, 'C\'est bon', '2026-03-29 15:31:16'),
-(8, 1, NULL, 1, 'OK', '2026-03-29 15:45:37'),
-(9, 1, NULL, 1, 'Je vois maintenant', '2026-03-29 15:45:59'),
-(10, 1, NULL, 1, 'OK', '2026-03-29 15:46:33'),
-(11, 1, NULL, 1, 'ok moi je suis la', '2026-03-29 15:49:13'),
-(12, 3, NULL, 1, 'Ok je suis en route', '2026-03-30 11:25:05'),
-(13, 1, NULL, 1, 'On doit echanger un peu', '2026-03-30 11:44:13'),
-(14, 1, NULL, 1, 'sur le truc', '2026-03-30 11:44:32'),
-(15, 1, NULL, 1, 'Ok,va voir le Directeur', '2026-03-30 11:45:08'),
-(16, 3, NULL, 1, 'Par rapport à la réunion de planification', '2026-03-30 11:46:29'),
-(17, 1, NULL, 1, 'Voici le document', '2026-03-30 12:10:59'),
-(18, 1, 3, NULL, 'Bonjour', '2026-03-30 12:14:56'),
-(19, 1, 3, NULL, 'Voici le fichier que je t\'ai promis d\'envoyer', '2026-03-30 12:15:19'),
-(20, 1, 3, NULL, 'Ok j\'ai reçu ça dev', '2026-03-30 12:30:12'),
-(21, 1, 3, NULL, 'Bonjour Dev', '2026-03-31 08:08:20'),
-(22, 1, 3, NULL, 'C\'est comment ?', '2026-03-31 08:08:39'),
-(23, 3, 1, NULL, 'ok c\'est bien', '2026-03-31 08:25:15'),
-(24, 1, NULL, 2, 'Bonjour', '2026-03-31 08:26:12'),
-(25, 4, NULL, 2, 'OK', '2026-03-31 08:26:44'),
-(26, 1, NULL, 2, 'Voici', '2026-03-31 08:27:10'),
-(27, 1, NULL, 1, 'Je suis en phase de test\r\nTu peux venir voir ça', '2026-03-31 12:47:42'),
-(28, 1, NULL, 1, 'OK', '2026-03-31 12:48:45'),
-(29, 1, NULL, 1, 'OK', '2026-03-31 13:01:09'),
-(30, 1, NULL, 1, 'Je vois maintenant', '2026-03-31 13:03:58'),
-(31, 3, NULL, 1, 'ok', '2026-03-31 13:04:40'),
-(32, 1, NULL, 1, 'Moi Dev', '2026-03-31 13:05:08'),
-(33, 1, NULL, 1, 'bonjour', '2026-03-31 13:13:21'),
-(34, 3, NULL, 1, 'Tu ne vas pas venir ?', '2026-03-31 13:15:15'),
-(35, 3, NULL, 1, 'Si c\'est vrais dit moi dev', '2026-03-31 13:17:19'),
-(36, 1, NULL, 1, 'OK', '2026-03-31 13:18:00'),
-(37, 1, NULL, 1, 'mais c\'est vrai', '2026-03-31 13:18:53'),
-(38, 1, NULL, 1, 'voici ma photo', '2026-03-31 13:21:15'),
-(39, 3, NULL, 1, 'Bonjour mon frere', '2026-03-31 13:36:28'),
-(40, 1, NULL, 1, 'Oui bonjour', '2026-03-31 13:36:53'),
-(41, 3, NULL, 1, 'tu ne vas pas venir aujourdhui ?', '2026-03-31 13:37:31'),
-(42, 1, NULL, 1, 'oui', '2026-03-31 13:38:13');
+(1, 1, NULL, 1, 'Bonjour dev, c\'est comment', '2026-03-29 15:09:13'),
+(2, 3, NULL, 1, 'Oui bonjour , ça va bien', '2026-03-29 15:18:33'),
+(3, 3, NULL, 1, 'Et de ton coté ?', '2026-03-29 15:18:43'),
+(4, 1, NULL, 1, 'Je me porte bien par la grace de Dieu', '2026-03-29 15:20:12'),
+(5, 1, NULL, 1, 'Je suis entrain de developper un nouveau systeme de traitement des données des FAE', '2026-03-29 17:05:50'),
+(6, 1, NULL, 1, 'OK', '2026-03-29 17:06:13'),
+(7, 1, NULL, 1, 'C\'est bon', '2026-03-29 17:31:16'),
+(8, 1, NULL, 1, 'OK', '2026-03-29 17:45:37'),
+(9, 1, NULL, 1, 'Je vois maintenant', '2026-03-29 17:45:59'),
+(10, 1, NULL, 1, 'OK', '2026-03-29 17:46:33'),
+(11, 1, NULL, 1, 'ok moi je suis la', '2026-03-29 17:49:13'),
+(12, 3, NULL, 1, 'Ok je suis en route', '2026-03-30 13:25:05'),
+(13, 1, NULL, 1, 'On doit echanger un peu', '2026-03-30 13:44:13'),
+(14, 1, NULL, 1, 'sur le truc', '2026-03-30 13:44:32'),
+(15, 1, NULL, 1, 'Ok,va voir le Directeur', '2026-03-30 13:45:08'),
+(16, 3, NULL, 1, 'Par rapport à la réunion de planification', '2026-03-30 13:46:29'),
+(17, 1, NULL, 1, 'Voici le document', '2026-03-30 14:10:59'),
+(18, 1, 3, NULL, 'Bonjour', '2026-03-30 14:14:56'),
+(19, 1, 3, NULL, 'Voici le fichier que je t\'ai promis d\'envoyer', '2026-03-30 14:15:19'),
+(20, 1, 3, NULL, 'Ok j\'ai reçu ça dev', '2026-03-30 14:30:12'),
+(21, 1, 3, NULL, 'Bonjour Dev', '2026-03-31 10:08:20'),
+(22, 1, 3, NULL, 'C\'est comment ?', '2026-03-31 10:08:39'),
+(23, 3, 1, NULL, 'ok c\'est bien', '2026-03-31 10:25:15'),
+(24, 1, NULL, 2, 'Bonjour', '2026-03-31 10:26:12'),
+(25, 4, NULL, 2, 'OK', '2026-03-31 10:26:44'),
+(26, 1, NULL, 2, 'Voici', '2026-03-31 10:27:10'),
+(27, 1, NULL, 1, 'Je suis en phase de test\r\nTu peux venir voir ça', '2026-03-31 14:47:42'),
+(28, 1, NULL, 1, 'OK', '2026-03-31 14:48:45'),
+(29, 1, NULL, 1, 'OK', '2026-03-31 15:01:09'),
+(30, 1, NULL, 1, 'Je vois maintenant', '2026-03-31 15:03:58'),
+(31, 3, NULL, 1, 'ok', '2026-03-31 15:04:40'),
+(32, 1, NULL, 1, 'Moi Dev', '2026-03-31 15:05:08'),
+(33, 1, NULL, 1, 'bonjour', '2026-03-31 15:13:21'),
+(34, 3, NULL, 1, 'Tu ne vas pas venir ?', '2026-03-31 15:15:15'),
+(35, 3, NULL, 1, 'Si c\'est vrais dit moi dev', '2026-03-31 15:17:19'),
+(36, 1, NULL, 1, 'OK', '2026-03-31 15:18:00'),
+(37, 1, NULL, 1, 'mais c\'est vrai', '2026-03-31 15:18:53'),
+(38, 1, NULL, 1, 'voici ma photo', '2026-03-31 15:21:15'),
+(39, 3, NULL, 1, 'Bonjour mon frere', '2026-03-31 15:36:28'),
+(40, 1, NULL, 1, 'Oui bonjour', '2026-03-31 15:36:53'),
+(41, 3, NULL, 1, 'tu ne vas pas venir aujourdhui ?', '2026-03-31 15:37:31'),
+(42, 1, NULL, 1, 'oui', '2026-03-31 15:38:13');
 
 -- --------------------------------------------------------
 
@@ -495,7 +523,7 @@ TRUNCATE TABLE `reunions`;
 --
 
 INSERT INTO `reunions` (`id`, `title`, `description`, `location`, `duration`, `status`, `priority`, `scheduled_at`, `created_by`, `created_at`) VALUES
-(2, 'Réunion de planification', 'La réunion permet de definir le plan d\'action de la Direction du système d\'information', NULL, NULL, 'in_progress', 'normal', '2026-03-30 19:13:00', 1, '2026-03-29 15:10:58');
+(2, 'Réunion de planification', 'La réunion permet de definir le plan d\'action de la Direction du système d\'information', NULL, NULL, 'in_progress', 'normal', '2026-03-30 19:13:00', 1, '2026-03-29 17:10:58');
 
 -- --------------------------------------------------------
 
@@ -550,8 +578,8 @@ TRUNCATE TABLE `reunions_notes`;
 --
 
 INSERT INTO `reunions_notes` (`id`, `reunion_id`, `user_id`, `content`, `created_at`, `updated_at`) VALUES
-(1, 2, 1, 'Je vois que la bonne methode c\'est de repartie les taches', '2026-03-31 10:41:38', NULL),
-(2, 2, 4, 'On peut faire comme Djim à suggerer', '2026-03-31 10:42:46', NULL);
+(1, 2, 1, 'Je vois que la bonne methode c\'est de repartie les taches', '2026-03-31 12:41:38', NULL),
+(2, 2, 4, 'On peut faire comme Djim à suggerer', '2026-03-31 12:42:46', NULL);
 
 -- --------------------------------------------------------
 
@@ -585,6 +613,34 @@ INSERT INTO `reunions_participants` (`reunion_id`, `user_id`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `reunions_recordings`
+--
+
+DROP TABLE IF EXISTS `reunions_recordings`;
+CREATE TABLE IF NOT EXISTS `reunions_recordings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reunion_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL COMMENT 'Utilisateur qui a lancé l''enregistrement',
+  `filename` varchar(255) NOT NULL COMMENT 'Nom du fichier sur le serveur',
+  `original_name` varchar(255) NOT NULL COMMENT 'Nom original affiché',
+  `file_size` bigint(20) UNSIGNED DEFAULT '0' COMMENT 'Taille en octets',
+  `duration` int(10) UNSIGNED DEFAULT '0' COMMENT 'Durée en secondes',
+  `mime_type` varchar(100) DEFAULT 'video/webm',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_reunion` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_reunion_id` (`reunion_id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+--
+-- Tronquer la table avant d'insérer `reunions_recordings`
+--
+
+TRUNCATE TABLE `reunions_recordings`;
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `users`
 --
 
@@ -614,10 +670,10 @@ TRUNCATE TABLE `users`;
 --
 
 INSERT INTO `users` (`users_id`, `users_username`, `users_password`, `users_nom`, `users_prenom`, `users_email`, `users_role`, `etat_compte`, `etat_online`, `photo_profil`, `create_at`) VALUES
-(1, 'Admin', '21232f297a57a5a743894a0e4a801fc3', 'DJIMTOLOUMA', 'Anicet', 'webmasterdjim@gmail.com', 'Developpeur', 1, 0, '1_310320261305.jpg', '2016-11-11 06:54:38'),
-(2, 'Anniel', 'ab4f63f9ac65152575886860dde480a1', 'TOAPORO', 'Anniel', 'anniel@gmail.com', 'PDG ENTREPRISE ACM', 1, 0, '2_070620241046.png', '2024-06-03 19:08:50'),
-(3, 'Gomer', 'e10adc3949ba59abbe56e057f20f883e', 'DOKOSSI', 'Gomer', 'gomer@gmail.com', 'Administrateur BDD', 1, 0, '3_060620240850.png', '2024-06-05 11:28:34'),
-(4, 'Fred', 'e7247759c1633c0f9f1485f3690294a9', 'DECKORO', 'Fred', 'freddeckoro@gmail.com', 'Administrateur Réseaux & Systèmes', 1, 0, 'user.jpg', '2026-03-29 13:29:42');
+(1, 'Admin', '21232f297a57a5a743894a0e4a801fc3', 'DJIMTOLOUMA', 'Anicet', 'webmasterdjim@gmail.com', 'Developpeur', 1, 1, '1_310320261305.jpg', '2016-11-11 07:54:38'),
+(2, 'Anniel', 'ab4f63f9ac65152575886860dde480a1', 'TOAPORO', 'Anniel', 'anniel@gmail.com', 'PDG ENTREPRISE ACM', 1, 0, '2_070620241046.png', '2024-06-03 21:08:50'),
+(3, 'Gomer', 'e10adc3949ba59abbe56e057f20f883e', 'DOKOSSI', 'Gomer', 'gomer@gmail.com', 'Administrateur BDD', 1, 1, '3_060620240850.png', '2024-06-05 13:28:34'),
+(4, 'Fred', 'e7247759c1633c0f9f1485f3690294a9', 'DECKORO', 'Fred', 'freddeckoro@gmail.com', 'Administrateur Réseaux & Systèmes', 1, 0, 'user.jpg', '2026-03-29 15:29:42');
 
 -- --------------------------------------------------------
 

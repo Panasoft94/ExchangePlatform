@@ -865,21 +865,29 @@
             <a href="<?php echo base_url(); ?>" class="sidebar-link" data-nav>
                 <i class="fas fa-home"></i> <span>Accueil</span>
             </a>
+            <?php if(is_allowed('view_chat')): ?>
             <a href="<?php echo site_url('chat'); ?>" class="sidebar-link" data-nav>
                 <i class="fas fa-comment-dots"></i> <span>Messagerie</span>
                 <span class="sidebar-link-badge d-none" id="globalChatUnreadBadge">0</span>
             </a>
+            <?php endif; ?>
+            <?php if(is_allowed('view_reunions')): ?>
             <a href="<?php echo site_url('reunions'); ?>" class="sidebar-link" data-nav>
                 <i class="fas fa-calendar-check"></i> <span>Réunions</span>
             </a>
+            <?php endif; ?>
+            <?php if(is_allowed('view_documents')): ?>
             <a href="<?php echo site_url('documents'); ?>" class="sidebar-link" data-nav>
                 <i class="fas fa-folder-open"></i> <span>Documents</span>
             </a>
+            <?php endif; ?>
+            <?php if(is_allowed('view_recordings')): ?>
             <a href="<?php echo site_url('visioconference/recordings'); ?>" class="sidebar-link" data-nav>
                 <i class="fas fa-circle-dot"></i> <span>Enregistrements</span>
             </a>
+            <?php endif; ?>
 
-            <?php if(is_allowed('user') || is_allowed('group') || is_allowed('view_history')): ?>
+            <?php if(is_allowed_any(array('user', 'group', 'view_history', 'manage_visio_config'))): ?>
                 <div class="sidebar-separator"></div>
                 <div class="nav-section-label">Administration</div>
             <?php endif; ?>
@@ -899,6 +907,12 @@
             <?php if(is_allowed('view_history')): ?>
                 <a href="<?php echo site_url('users/history'); ?>" class="sidebar-link" data-nav>
                     <i class="fas fa-clock-rotate-left"></i> <span>Historique</span>
+                </a>
+            <?php endif; ?>
+
+            <?php if(is_allowed('manage_visio_config')): ?>
+                <a href="<?php echo site_url('visioconference/configuration'); ?>" class="sidebar-link" data-nav>
+                    <i class="fas fa-video"></i> <span>Config. Visio</span>
                 </a>
             <?php endif; ?>
         </div>
