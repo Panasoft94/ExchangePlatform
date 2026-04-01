@@ -102,9 +102,15 @@ function broadcastAll(roomId, payload) {
 }
 
 function broadcastParticipants(roomId) {
-  broadcast(roomId, {
-    type: 'participants',
-    peers: roomPeers(roomId)
+  const room = rooms.get(roomId);
+  if (!room) return;
+  room.forEach((peer, clientId) => {
+    if (peer.socket.readyState === WebSocket.OPEN) {
+      peer.socket.send(JSON.stringify({
+        type: 'participants',
+        peers: roomPeers(roomId, clientId)
+      }));
+    }
   });
 }
 

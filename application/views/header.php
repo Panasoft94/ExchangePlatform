@@ -875,6 +875,9 @@
             <a href="<?php echo site_url('documents'); ?>" class="sidebar-link" data-nav>
                 <i class="fas fa-folder-open"></i> <span>Documents</span>
             </a>
+            <a href="<?php echo site_url('visioconference/recordings'); ?>" class="sidebar-link" data-nav>
+                <i class="fas fa-circle-dot"></i> <span>Enregistrements</span>
+            </a>
 
             <?php if(is_allowed('user') || is_allowed('group') || is_allowed('view_history')): ?>
                 <div class="sidebar-separator"></div>

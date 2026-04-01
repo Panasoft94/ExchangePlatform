@@ -285,6 +285,11 @@
 .ctrl-btn.danger:hover { background: #dc2626; }
 .ctrl-btn.warn { background: rgba(245,158,11,.85); }
 .ctrl-btn .ctrl-label { font-size: 12px; }
+.ctrl-btn.recording { background: #ef4444; animation: recPulse 1.5s ease-in-out infinite; }
+@keyframes recPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.5); }
+    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
 @media (max-width:768px) {
     .ctrl-btn .ctrl-label { display:none; }
     .ctrl-btn { padding: 0 10px; }
@@ -582,6 +587,8 @@
 
             <!-- Video Grid -->
             <div class="visio-grid grid-1" id="videoGrid"></div>
+            <!-- Hidden audio elements for remote peers (persisted across grid re-renders) -->
+            <div id="remoteAudioContainer" style="display:none;"></div>
 
             <!-- Warning -->
             <div class="visio-warning" id="warningBox"></div>
@@ -599,6 +606,10 @@
                 <button class="ctrl-btn" id="btnScreenShare" title="Partager l ecran">
                     <i class="fas fa-desktop"></i>
                     <span class="ctrl-label">Ecran</span>
+                </button>
+                <button class="ctrl-btn" id="btnRecord" title="Enregistrer la réunion">
+                    <i class="fas fa-circle"></i>
+                    <span class="ctrl-label">Enregistrer</span>
                 </button>
                 <button class="ctrl-btn" id="btnRaiseHand" title="Demander la parole">
                     <i class="fas fa-hand-paper"></i>
@@ -633,6 +644,7 @@
                 <span><span class="status-dot" id="dotSignal"></span> <span id="statusSignal">Déconnecté</span></span>
                 <span><span class="status-dot" id="dotMic"></span> <span id="statusMic">—</span></span>
                 <span><span class="status-dot" id="dotCam"></span> <span id="statusCam">—</span></span>
+                <span><span class="status-dot" id="dotRec" style="display:none"></span> <span id="statusRec" style="display:none"></span></span>
                 <span><span class="status-dot" id="dotRelay"></span> <span id="statusRelay"><?php echo $has_turn_server ? 'TURN actif' : 'Pas de relai'; ?></span></span>
             </div>
         </div>
@@ -696,7 +708,9 @@
                 'avatar' => !empty($p->photo_profil) ? base_url('assets/img/avatar/' . rawurlencode(basename($p->photo_profil))) : ''
             );
         }, $participants)); ?>,
-        reunionDuration: <?php echo isset($reunion_duration) ? (int) $reunion_duration : 60; ?>
+        reunionDuration: <?php echo isset($reunion_duration) ? (int) $reunion_duration : 60; ?>,
+        reunionId: <?php echo (int) $reunion->id; ?>,
+        saveRecordingUrl: '<?php echo site_url('visioconference/save_recording'); ?>'
     };
 
     /* ========== State ========== */
@@ -723,12 +737,23 @@
         chatUnread: 0,
         timerStart: Date.now(),
         timerInterval: null,
-        activeSpeakerId: null
+        activeSpeakerId: null,
+        isRecording: false,
+        mediaRecorder: null,
+        recordedChunks: [],
+        recordingStartTime: null,
+        recordingCanvas: null,
+        recordingCtx: null,
+        recordingAnimFrame: null,
+        recordingAudioCtx: null,
+        recordingAudioDest: null,
+        recordingSourceNodes: {}
     };
 
     /* ========== DOM refs ========== */
     var shell = document.getElementById('visioShell');
     var videoGrid = document.getElementById('videoGrid');
+    var remoteAudioContainer = document.getElementById('remoteAudioContainer');
     var warningBox = document.getElementById('warningBox');
     var reconnectOverlay = document.getElementById('reconnectOverlay');
     var reconnectMsg = document.getElementById('reconnectMsg');
@@ -742,6 +767,7 @@
     var btnMute = document.getElementById('btnMute');
     var btnCamera = document.getElementById('btnCamera');
     var btnScreenShare = document.getElementById('btnScreenShare');
+    var btnRecord = document.getElementById('btnRecord');
     var btnRaiseHand = document.getElementById('btnRaiseHand');
     var btnViewToggle = document.getElementById('btnViewToggle');
     var btnFullscreen = document.getElementById('btnFullscreen');
@@ -757,10 +783,12 @@
     var dotSignal = document.getElementById('dotSignal');
     var dotMic = document.getElementById('dotMic');
     var dotCam = document.getElementById('dotCam');
+    var dotRec = document.getElementById('dotRec');
     var dotRelay = document.getElementById('dotRelay');
     var statusSignal = document.getElementById('statusSignal');
     var statusMic = document.getElementById('statusMic');
     var statusCam = document.getElementById('statusCam');
+    var statusRec = document.getElementById('statusRec');
 
     /* ========== Helpers ========== */
     function escHtml(s) {
@@ -808,7 +836,7 @@
         var video = document.createElement('video');
         video.autoplay = true;
         video.playsInline = true;
-        if (id === 'local' || id === state.localClientId) video.muted = true;
+        video.muted = true; // All grid videos muted — audio plays via persistent <audio> elements
         card.appendChild(video);
 
         var ph = document.createElement('div');
@@ -854,7 +882,10 @@
 
         var hasVideo = p.stream && p.stream.getVideoTracks().length > 0 && !p.cameraOff;
         if (video && p.stream) {
-            if (video.srcObject !== p.stream) video.srcObject = p.stream;
+            if (video.srcObject !== p.stream) {
+                video.srcObject = p.stream;
+                video.play().catch(function() {});
+            }
             video.style.display = hasVideo ? 'block' : 'none';
         } else if (video) {
             video.style.display = 'none';
@@ -927,6 +958,12 @@
     function syncParticipants(peers) {
         state.connectedUserIds = {};
         state.connectedUserIds[meetingConfig.currentUserId] = true;
+
+        // Filter out self from peer list to avoid duplicate video card
+        var localCid = state.localClientId || 'local';
+        peers = peers.filter(function(peer) {
+            return peer.clientId !== localCid && peer.userId !== meetingConfig.currentUserId;
+        });
 
         peers.forEach(function(peer) {
             state.connectedUserIds[peer.userId] = true;
@@ -1227,12 +1264,47 @@
     }
 
     /* ========== WebRTC ========== */
+    function ensureRemoteAudio(clientId, stream) {
+        // Create/update a persistent <audio> element for this remote peer
+        // These live outside videoGrid so they survive grid re-renders
+        if (clientId === 'local' || clientId === state.localClientId) return; // never play our own audio
+        var audioTracks = stream.getAudioTracks();
+        if (audioTracks.length === 0) return;
+
+        var audioId = 'remote-audio-' + clientId;
+        var audio = document.getElementById(audioId);
+        if (!audio) {
+            audio = document.createElement('audio');
+            audio.id = audioId;
+            audio.autoplay = true;
+            audio.setAttribute('playsinline', '');
+            remoteAudioContainer.appendChild(audio);
+        }
+        if (audio.srcObject !== stream) {
+            audio.srcObject = stream;
+            audio.play().catch(function(err) {
+                console.warn('Remote audio play blocked for', clientId, err);
+            });
+        }
+    }
+
+    function removeRemoteAudio(clientId) {
+        var audioId = 'remote-audio-' + clientId;
+        var audio = document.getElementById(audioId);
+        if (audio) {
+            audio.srcObject = null;
+            audio.remove();
+        }
+    }
+
     function attachRemoteStream(clientId, stream) {
         if (!state.participants[clientId]) return;
         state.participants[clientId].stream = stream;
         var card = videoGrid.querySelector('[data-client-id="' + clientId + '"]');
         if (card) applyCardState(card, state.participants[clientId]);
+        ensureRemoteAudio(clientId, stream);
         startAudioMeter(clientId, stream);
+        addRemoteAudioToRecording(clientId, stream);
     }
 
     function ensureRemoteStream(clientId) {
@@ -1256,6 +1328,7 @@
         var ps = state.peers[clientId];
         if (ps) {
             stopAudioMeter(clientId);
+            removeRemoteAudio(clientId);
             if (ps.connection) {
                 ps.connection.onicecandidate = null;
                 ps.connection.ontrack = null;
@@ -1498,11 +1571,390 @@
         renderAll();
     }
 
-    /* ========== Leave / Cleanup ========== */
-    function leaveRoom(redirect) {
-        if (state.hasLeft) return;
-        state.hasLeft = true;
+    /* ========== Recording ========== */
 
+    // Persistent hidden video elements for recording (not affected by grid re-renders)
+    state.recVideoEls = {};
+
+    function recEnsureVideoEl(key, stream) {
+        if (!state.recVideoEls[key]) {
+            var v = document.createElement('video');
+            v.autoplay = true;
+            v.playsInline = true;
+            v.muted = true; // muted to avoid echo, audio captured separately
+            v.style.position = 'fixed';
+            v.style.top = '-9999px';
+            v.style.left = '-9999px';
+            v.style.width = '1px';
+            v.style.height = '1px';
+            v.style.opacity = '0.01';
+            document.body.appendChild(v);
+            state.recVideoEls[key] = v;
+        }
+        var el = state.recVideoEls[key];
+        if (el.srcObject !== stream) {
+            el.srcObject = stream;
+            el.play().catch(function() {});
+        }
+        return el;
+    }
+
+    function recSyncVideoEls() {
+        // Sync all participant streams to hidden video elements
+        Object.keys(state.participants).forEach(function(cid) {
+            var p = state.participants[cid];
+            if (p.stream) {
+                recEnsureVideoEl(cid, p.stream);
+            }
+        });
+        // Remove elements for departed participants
+        Object.keys(state.recVideoEls).forEach(function(key) {
+            if (!state.participants[key]) {
+                var el = state.recVideoEls[key];
+                el.srcObject = null;
+                if (el.parentNode) el.parentNode.removeChild(el);
+                delete state.recVideoEls[key];
+            }
+        });
+    }
+
+    function recCleanupVideoEls() {
+        Object.keys(state.recVideoEls).forEach(function(key) {
+            var el = state.recVideoEls[key];
+            el.srcObject = null;
+            if (el.parentNode) el.parentNode.removeChild(el);
+        });
+        state.recVideoEls = {};
+    }
+
+    // roundRect polyfill for older browsers
+    function drawRoundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.arcTo(x + w, y, x + w, y + r, r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+        ctx.lineTo(x + r, y + h);
+        ctx.arcTo(x, y + h, x, y + h - r, r);
+        ctx.lineTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.closePath();
+    }
+
+    function initRecordingCanvas() {
+        if (!state.recordingCanvas) {
+            state.recordingCanvas = document.createElement('canvas');
+            state.recordingCanvas.width = 1280;
+            state.recordingCanvas.height = 720;
+            state.recordingCtx = state.recordingCanvas.getContext('2d');
+        }
+    }
+
+    function drawRecordingFrame() {
+        if (!state.isRecording) {
+            return;
+        }
+        try {
+            var ctx = state.recordingCtx;
+            var cw = state.recordingCanvas.width;
+            var ch = state.recordingCanvas.height;
+
+            ctx.fillStyle = '#0f0f1a';
+            ctx.fillRect(0, 0, cw, ch);
+
+            // Sync hidden video elements with current participants
+            recSyncVideoEls();
+
+            var activeVideos = [];
+            Object.keys(state.recVideoEls).forEach(function(key) {
+                var v = state.recVideoEls[key];
+                if (v.readyState >= 2 && v.videoWidth > 0) {
+                    activeVideos.push(v);
+                }
+            });
+
+            if (activeVideos.length === 0) {
+                ctx.fillStyle = '#fff';
+                ctx.font = '24px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Enregistrement en cours...', cw / 2, ch / 2);
+            } else {
+                var count = activeVideos.length;
+                var cols = Math.ceil(Math.sqrt(count));
+                var rows = Math.ceil(count / cols);
+                var cellW = Math.floor(cw / cols);
+                var cellH = Math.floor(ch / rows);
+                var pad = 2;
+
+                for (var i = 0; i < activeVideos.length; i++) {
+                    var v = activeVideos[i];
+                    var col = i % cols;
+                    var row = Math.floor(i / cols);
+                    var x = col * cellW + pad;
+                    var y = row * cellH + pad;
+                    var w = cellW - pad * 2;
+                    var h = cellH - pad * 2;
+
+                    var vRatio = v.videoWidth / v.videoHeight;
+                    var cRatio = w / h;
+                    var sx = 0, sy = 0, sw = v.videoWidth, sh = v.videoHeight;
+                    if (vRatio > cRatio) {
+                        sw = v.videoHeight * cRatio;
+                        sx = (v.videoWidth - sw) / 2;
+                    } else {
+                        sh = v.videoWidth / cRatio;
+                        sy = (v.videoHeight - sh) / 2;
+                    }
+
+                    ctx.save();
+                    drawRoundRect(ctx, x, y, w, h, 8);
+                    ctx.clip();
+                    ctx.drawImage(v, sx, sy, sw, sh, x, y, w, h);
+                    ctx.restore();
+                }
+            }
+
+            // Recording timer overlay
+            if (state.recordingStartTime) {
+                var elapsed = Math.floor((Date.now() - state.recordingStartTime) / 1000);
+                var mm = Math.floor(elapsed / 60);
+                var ss = elapsed % 60;
+                var timeStr = (mm < 10 ? '0' : '') + mm + ':' + (ss < 10 ? '0' : '') + ss;
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(239,68,68,.85)';
+                drawRoundRect(ctx, cw - 120, 12, 108, 28, 6);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 13px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('● REC ' + timeStr, cw - 66, 31);
+                ctx.restore();
+            }
+        } catch(e) {
+            console.error('[REC] drawRecordingFrame error:', e);
+        }
+
+        state.recordingAnimFrame = requestAnimationFrame(drawRecordingFrame);
+    }
+
+    function createMixedAudioDestination() {
+        state.recordingAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        state.recordingAudioDest = state.recordingAudioCtx.createMediaStreamDestination();
+        state.recordingSourceNodes = {};
+
+        // Master gain to normalize mixed audio and prevent clipping
+        state.recordingMasterGain = state.recordingAudioCtx.createGain();
+        state.recordingMasterGain.gain.value = 0.8;
+        state.recordingMasterGain.connect(state.recordingAudioDest);
+
+        // Local audio
+        if (state.localStream) {
+            var audioTracks = state.localStream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                var src = state.recordingAudioCtx.createMediaStreamSource(new MediaStream(audioTracks));
+                src.connect(state.recordingMasterGain);
+                state.recordingSourceNodes['local'] = src;
+            }
+        }
+
+        // Remote audio
+        Object.keys(state.peers).forEach(function(cid) {
+            var peer = state.peers[cid];
+            if (peer.remoteStream) {
+                var audioTracks = peer.remoteStream.getAudioTracks();
+                if (audioTracks.length > 0) {
+                    var src = state.recordingAudioCtx.createMediaStreamSource(new MediaStream(audioTracks));
+                    src.connect(state.recordingMasterGain);
+                    state.recordingSourceNodes[cid] = src;
+                }
+            }
+        });
+    }
+
+    function addRemoteAudioToRecording(cid, stream) {
+        if (!state.isRecording || !state.recordingAudioCtx || !state.recordingAudioDest) return;
+        if (state.recordingSourceNodes[cid]) return;
+        var audioTracks = stream.getAudioTracks();
+        if (audioTracks.length > 0) {
+            var src = state.recordingAudioCtx.createMediaStreamSource(new MediaStream(audioTracks));
+            src.connect(state.recordingMasterGain);
+            state.recordingSourceNodes[cid] = src;
+        }
+    }
+
+    function startRecording() {
+        if (state.isRecording) return;
+        if (!window.MediaRecorder) {
+            alert('Votre navigateur ne supporte pas l\'enregistrement vidéo.');
+            return;
+        }
+
+        initRecordingCanvas();
+        createMixedAudioDestination();
+
+        var canvasStream = state.recordingCanvas.captureStream(15);
+        var audioTracks = state.recordingAudioDest.stream.getAudioTracks();
+        var combinedStream = new MediaStream();
+        canvasStream.getVideoTracks().forEach(function(t) { combinedStream.addTrack(t); });
+        audioTracks.forEach(function(t) { combinedStream.addTrack(t); });
+
+        var mimeTypes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+        var selectedMime = '';
+        for (var i = 0; i < mimeTypes.length; i++) {
+            if (MediaRecorder.isTypeSupported(mimeTypes[i])) {
+                selectedMime = mimeTypes[i];
+                break;
+            }
+        }
+        if (!selectedMime) {
+            alert('Aucun format d\'enregistrement supporté par votre navigateur.');
+            return;
+        }
+
+        state.recordedChunks = [];
+        state.mediaRecorder = new MediaRecorder(combinedStream, {
+            mimeType: selectedMime,
+            videoBitsPerSecond: 2500000,
+            audioBitsPerSecond: 128000
+        });
+
+        state.mediaRecorder.ondataavailable = function(e) {
+            if (e.data && e.data.size > 0) {
+                state.recordedChunks.push(e.data);
+            }
+        };
+
+        state.mediaRecorder.onstop = function() {
+            cancelAnimationFrame(state.recordingAnimFrame);
+            var duration = state.recordingStartTime ? Math.floor((Date.now() - state.recordingStartTime) / 1000) : 0;
+            uploadRecording(duration);
+        };
+
+        state.mediaRecorder.start(1000);
+        state.isRecording = true;
+        state.recordingStartTime = Date.now();
+        recSyncVideoEls(); // pre-create hidden video elements before first draw
+        drawRecordingFrame();
+        updateRecordButton();
+    }
+
+    function stopRecording(onUploadDone) {
+        if (!state.isRecording || !state.mediaRecorder) {
+            if (onUploadDone) onUploadDone();
+            return;
+        }
+        state.isRecording = false;
+        state._onRecordingUploadDone = onUploadDone || null;
+
+        if (state.mediaRecorder.state !== 'inactive') {
+            state.mediaRecorder.stop();
+        }
+
+        if (state.recordingAudioCtx) {
+            Object.keys(state.recordingSourceNodes).forEach(function(key) {
+                try { state.recordingSourceNodes[key].disconnect(); } catch(e) {}
+            });
+            state.recordingSourceNodes = {};
+            state.recordingAudioCtx.close().catch(function() {});
+            state.recordingAudioCtx = null;
+            state.recordingAudioDest = null;
+        }
+
+        recCleanupVideoEls();
+        updateRecordButton();
+    }
+
+    function uploadRecording(duration) {
+        if (state.recordedChunks.length === 0) return;
+
+        var blob = new Blob(state.recordedChunks, { type: 'video/webm' });
+        state.recordedChunks = [];
+
+        var formData = new FormData();
+        formData.append('recording', blob, 'recording.webm');
+        formData.append('reunion_id', meetingConfig.reunionId);
+        formData.append('duration', duration);
+
+        dotRec.style.display = 'inline-block';
+        statusRec.style.display = 'inline';
+        dotRec.className = 'status-dot orange';
+        statusRec.textContent = 'Sauvegarde...';
+
+        fetch(meetingConfig.saveRecordingUrl, {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) {
+            return r.text().then(function(txt) {
+                try { return JSON.parse(txt); }
+                catch(e) {
+                    console.error('[REC] Server response not JSON:', txt.substring(0, 500));
+                    return { success: false, message: 'Réponse serveur invalide' };
+                }
+            });
+        })
+        .then(function(data) {
+            if (data.success) {
+                dotRec.className = 'status-dot green';
+                statusRec.textContent = 'Enregistré ✓';
+                setTimeout(function() {
+                    dotRec.style.display = 'none';
+                    statusRec.style.display = 'none';
+                }, 4000);
+            } else {
+                dotRec.className = 'status-dot red';
+                statusRec.textContent = 'Erreur: ' + (data.message || 'échec');
+                offerLocalDownload(blob);
+            }
+        })
+        .catch(function() {
+            dotRec.className = 'status-dot red';
+            statusRec.textContent = 'Erreur réseau';
+            offerLocalDownload(blob);
+        })
+        .finally(function() {
+            if (state._onRecordingUploadDone) {
+                var cb = state._onRecordingUploadDone;
+                state._onRecordingUploadDone = null;
+                cb();
+            }
+        });
+    }
+
+    function offerLocalDownload(blob) {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'enregistrement-reunion-' + meetingConfig.reunionId + '-' + Date.now() + '.webm';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }, 1000);
+    }
+
+    function updateRecordButton() {
+        if (state.isRecording) {
+            btnRecord.innerHTML = '<i class="fas fa-stop"></i><span class="ctrl-label">Arrêter</span>';
+            btnRecord.classList.add('recording');
+            dotRec.style.display = 'inline-block';
+            statusRec.style.display = 'inline';
+            dotRec.className = 'status-dot red';
+            statusRec.textContent = 'Enregistrement...';
+        } else {
+            btnRecord.innerHTML = '<i class="fas fa-circle"></i><span class="ctrl-label">Enregistrer</span>';
+            btnRecord.classList.remove('recording');
+        }
+    }
+
+    /* ========== Leave / Cleanup ========== */
+    var _cleanupDone = false;
+    function doLeaveCleanup(redirect) {
+        if (_cleanupDone) return;
+        _cleanupDone = true;
         sendMessage({ type: 'leave' });
         Object.keys(state.peers).forEach(function(cid) { closePeerConnection(cid); });
         stopAudioMeter(state.localClientId || 'local');
@@ -1513,6 +1965,33 @@
         if (state.reconnectTimer) clearTimeout(state.reconnectTimer);
 
         if (redirect !== false) window.location.href = meetingConfig.backUrl;
+    }
+
+    // Warn user if recording is active and they try to close the tab
+    window.addEventListener('beforeunload', function(e) {
+        if (state.isRecording) {
+            e.preventDefault();
+            e.returnValue = 'Un enregistrement est en cours. Voulez-vous vraiment quitter ?';
+            return e.returnValue;
+        }
+    });
+
+    function leaveRoom(redirect) {
+        if (state.hasLeft) return;
+        state.hasLeft = true;
+
+        // If recording, wait for upload to finish before navigating
+        if (state.isRecording) {
+            showWarning('Sauvegarde de l\'enregistrement en cours...');
+            stopRecording(function() {
+                doLeaveCleanup(redirect);
+            });
+            // Safety timeout: navigate anyway after 30s
+            setTimeout(function() { doLeaveCleanup(redirect); }, 30000);
+            return;
+        }
+
+        doLeaveCleanup(redirect);
     }
 
     /* ========== UI Update Helpers ========== */
@@ -1607,6 +2086,14 @@
     btnScreenShare.addEventListener('click', function() {
         if (state.isScreenSharing) stopScreenShare();
         else startScreenShare();
+    });
+
+    btnRecord.addEventListener('click', function() {
+        if (state.isRecording) {
+            if (confirm('Arrêter l\'enregistrement ?')) stopRecording();
+        } else {
+            startRecording();
+        }
     });
 
     btnRaiseHand.addEventListener('click', function() {
@@ -1754,6 +2241,10 @@
             try { msg = JSON.parse(event.data); } catch(e) { return; }
 
             if (msg.type === 'joined') {
+                // Clean up temp 'local' entry before switching to server-assigned clientId
+                if (state.participants['local']) {
+                    delete state.participants['local'];
+                }
                 state.localClientId = msg.clientId;
                 updateLocalState(false);
                 syncParticipants(msg.peers || []);
@@ -1848,10 +2339,17 @@
             return;
         }
 
-        navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(stream) {
+        var audioConstraints = {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            sampleRate: 48000
+        };
+
+        navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: true }).then(function(stream) {
             handleLocalStream(stream);
         }).catch(function() {
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
+            navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false }).then(function(stream) {
                 handleLocalStream(stream);
                 showWarning('La réunion a démarré sans caméra.');
             }).catch(function() {

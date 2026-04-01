@@ -6,6 +6,7 @@ class Visioconference extends MX_Controller
     {
         parent::__construct();
         $this->load->model('reunions/Reunions_model');
+        $this->load->model('Recordings_model');
         check();
     }
 
@@ -169,7 +170,7 @@ class Visioconference extends MX_Controller
             'has_turn_server' => $this->has_turn_server($ice_servers),
             'can_manage_visio_settings' => $this->can_manage_visio_settings($session),
             'configuration_url' => site_url('visioconference/configuration'),
-            'reunion_date' => isset($reunion->date_reunion) ? $reunion->date_reunion : '',
+            'reunion_date' => isset($reunion->scheduled_at) ? $reunion->scheduled_at : '',
             'reunion_duration' => isset($reunion->duration) ? (int) $reunion->duration : 60
         );
 
@@ -190,6 +191,206 @@ class Visioconference extends MX_Controller
         }
 
         return $this->Reunions_model->is_user_participant($reunion->id, $user_id);
+    }
+
+    /* ================================================================
+     * RECORDINGS
+     * ================================================================ */
+
+    public function save_recording()
+    {
+        header('Content-Type: application/json');
+
+        if ($this->input->method() !== 'post') {
+            echo json_encode(array('success' => false, 'message' => 'Méthode non autorisée'));
+            return;
+        }
+
+        $session = $this->session->userdata('users');
+        if (!$session) {
+            echo json_encode(array('success' => false, 'message' => 'Session expirée'));
+            return;
+        }
+
+        $reunion_id = (int) $this->input->post('reunion_id');
+        $duration = (int) $this->input->post('duration');
+
+        $reunion = $this->Reunions_model->get($reunion_id);
+        if (!$reunion) {
+            echo json_encode(array('success' => false, 'message' => 'Réunion introuvable'));
+            return;
+        }
+
+        if (!$this->can_access_room($reunion, $session->users_id)) {
+            echo json_encode(array('success' => false, 'message' => 'Accès refusé'));
+            return;
+        }
+
+        if (!isset($_FILES['recording']) || $_FILES['recording']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(array('success' => false, 'message' => 'Fichier manquant ou erreur d\'upload'));
+            return;
+        }
+
+        $file = $_FILES['recording'];
+        $allowed_types = array('video/webm', 'video/mp4', 'video/x-matroska', 'application/octet-stream');
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $detected_type = $finfo->file($file['tmp_name']);
+
+        // On Windows/WAMP, finfo may return application/octet-stream for WebM files
+        // Also check by file extension from the upload name
+        $upload_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($detected_type, $allowed_types) && !in_array($upload_ext, array('webm', 'mp4', 'mkv'))) {
+            echo json_encode(array('success' => false, 'message' => 'Type de fichier non autorisé: ' . $detected_type));
+            return;
+        }
+
+        $max_size = 500 * 1024 * 1024; // 500 Mo
+        if ($file['size'] > $max_size) {
+            echo json_encode(array('success' => false, 'message' => 'Fichier trop volumineux (max 500 Mo)'));
+            return;
+        }
+
+        $upload_dir = FCPATH . 'assets/uploads/recordings/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $ext = 'webm';
+        if ($detected_type === 'video/mp4') $ext = 'mp4';
+        elseif ($detected_type === 'video/x-matroska') $ext = 'mkv';
+        elseif ($detected_type === 'application/octet-stream' && in_array($upload_ext, array('webm', 'mp4', 'mkv'))) {
+            $ext = $upload_ext;
+        }
+
+        // Force correct mime_type for DB storage when finfo couldn't detect it
+        $mime_for_db = $detected_type;
+        if ($detected_type === 'application/octet-stream') {
+            $mime_map = array('webm' => 'video/webm', 'mp4' => 'video/mp4', 'mkv' => 'video/x-matroska');
+            $mime_for_db = isset($mime_map[$ext]) ? $mime_map[$ext] : 'video/webm';
+        }
+
+        $unique = substr(md5(uniqid(mt_rand(), true)), 0, 8);
+        $filename = 'rec_' . $reunion_id . '_' . $session->users_id . '_' . date('YmdHis') . '_' . $unique . '.' . $ext;
+        $destination = $upload_dir . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            echo json_encode(array('success' => false, 'message' => 'Erreur lors de la sauvegarde du fichier'));
+            return;
+        }
+
+        $reunion_title = isset($reunion->title) ? $reunion->title : 'Réunion';
+        $original_name = 'Enregistrement - ' . $reunion_title . ' - ' . date('d-m-Y H\hi') . '.' . $ext;
+
+        $record_id = $this->Recordings_model->insert(array(
+            'reunion_id' => $reunion_id,
+            'user_id' => (int) $session->users_id,
+            'filename' => $filename,
+            'original_name' => $original_name,
+            'file_size' => (int) $file['size'],
+            'duration' => $duration,
+            'mime_type' => $mime_for_db
+        ));
+
+        echo json_encode(array(
+            'success' => true,
+            'message' => 'Enregistrement sauvegardé avec succès',
+            'recording_id' => $record_id
+        ));
+    }
+
+    public function recordings($reunion_id = null)
+    {
+        $session = $this->session->userdata('users');
+        if (!$session) {
+            redirect('users/login');
+        }
+
+        if ($reunion_id) {
+            $reunion = $this->Reunions_model->get((int) $reunion_id);
+            if (!$reunion || !$this->can_access_room($reunion, $session->users_id)) {
+                $this->session->set_flashdata('error', 'Accès refusé à ces enregistrements.');
+                redirect('reunions');
+            }
+            $recordings = $this->Recordings_model->get_by_reunion((int) $reunion_id);
+            $page_title = 'Enregistrements — ' . htmlspecialchars(isset($reunion->title) ? $reunion->title : 'Réunion', ENT_QUOTES, 'UTF-8');
+        } else {
+            $recordings = $this->Recordings_model->get_user_recordings((int) $session->users_id);
+            $reunion = null;
+            $page_title = 'Tous les enregistrements';
+        }
+
+        $data = array(
+            'recordings' => $recordings,
+            'reunion' => $reunion,
+            'page_title' => $page_title,
+            'current_user_id' => (int) $session->users_id,
+            'is_admin' => $this->can_manage_visio_settings($session)
+        );
+
+        $this->load->view('header');
+        $this->load->view('recordings', $data);
+        $this->load->view('footer');
+    }
+
+    public function download_recording($id)
+    {
+        $session = $this->session->userdata('users');
+        if (!$session) {
+            redirect('users/login');
+        }
+
+        $recording = $this->Recordings_model->get((int) $id);
+        if (!$recording) {
+            $this->session->set_flashdata('error', 'Enregistrement introuvable.');
+            redirect('visioconference/recordings');
+        }
+
+        $reunion = $this->Reunions_model->get($recording->reunion_id);
+        if (!$reunion || !$this->can_access_room($reunion, $session->users_id)) {
+            $this->session->set_flashdata('error', 'Accès refusé.');
+            redirect('visioconference/recordings');
+        }
+
+        $filepath = FCPATH . 'assets/uploads/recordings/' . basename($recording->filename);
+        if (!file_exists($filepath)) {
+            $this->session->set_flashdata('error', 'Le fichier d\'enregistrement est introuvable sur le serveur.');
+            redirect('visioconference/recordings');
+        }
+
+        header('Content-Type: ' . $recording->mime_type);
+        header('Content-Disposition: attachment; filename="' . addslashes($recording->original_name) . '"');
+        header('Content-Length: ' . filesize($filepath));
+        header('Cache-Control: no-cache, must-revalidate');
+        readfile($filepath);
+        exit;
+    }
+
+    public function delete_recording($id)
+    {
+        $session = $this->session->userdata('users');
+        if (!$session) {
+            echo json_encode(array('success' => false, 'message' => 'Session expirée'));
+            return;
+        }
+
+        $recording = $this->Recordings_model->get((int) $id);
+        if (!$recording) {
+            echo json_encode(array('success' => false, 'message' => 'Enregistrement introuvable'));
+            return;
+        }
+
+        $reunion = $this->Reunions_model->get($recording->reunion_id);
+        $is_host = $reunion && (int) $reunion->created_by === (int) $session->users_id;
+        $is_recorder = (int) $recording->user_id === (int) $session->users_id;
+        $is_admin = $this->can_manage_visio_settings($session);
+
+        if (!$is_host && !$is_recorder && !$is_admin) {
+            echo json_encode(array('success' => false, 'message' => 'Vous n\'êtes pas autorisé à supprimer cet enregistrement'));
+            return;
+        }
+
+        $this->Recordings_model->delete((int) $id);
+        echo json_encode(array('success' => true, 'message' => 'Enregistrement supprimé'));
     }
 
     private function build_room_name($reunion)
